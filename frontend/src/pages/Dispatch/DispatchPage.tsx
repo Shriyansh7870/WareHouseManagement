@@ -52,7 +52,7 @@ function doStatusLabel(s: DOStatus) {
 function CreateDOModal({ onClose }: { onClose: () => void }) {
   const { addDeliveryOrder } = useDataStore();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<DOForm>({
-    resolver: zodResolver(doSchema),
+    resolver: zodResolver(doSchema) as any,
     defaultValues: { orderDate: new Date().toISOString().split('T')[0] },
   });
 

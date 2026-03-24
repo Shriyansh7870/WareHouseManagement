@@ -293,7 +293,7 @@ export default function Dashboard() {
                   innerRadius={60}
                   outerRadius={100}
                   paddingAngle={3}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
                   labelLine={{ strokeWidth: 1 }}
                   style={{ fontSize: 10 }}
                 >

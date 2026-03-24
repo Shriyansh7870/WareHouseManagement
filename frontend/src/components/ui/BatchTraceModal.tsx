@@ -39,7 +39,7 @@ export default function BatchTraceModal({ batchNumber, onClose }: BatchTraceModa
         <div className="space-y-1 text-sm">
           <div className="flex gap-6 flex-wrap">
             <Field label="GRN No." value={grn.grnNumber} />
-            <Field label="Supplier" value={grn.vendorName} />
+            <Field label="Supplier" value={grn.vendorName ?? ''} />
             <Field label="Item" value={grn.itemName} />
           </div>
           <div className="flex gap-6 flex-wrap">
@@ -137,10 +137,10 @@ export default function BatchTraceModal({ batchNumber, onClose }: BatchTraceModa
               <div className="flex gap-6 flex-wrap">
                 <Field label="Items" value={d.items} />
                 <Field label="Qty" value={String(d.qty)} />
-                <Field label="Carrier" value={d.carrier} />
+                <Field label="Carrier" value={d.carrier ?? ''} />
               </div>
               <div className="flex gap-3 mt-1 items-center">
-                <Badge variant={d.doStatus === 'DELIVERED' ? 'ok' : d.doStatus === 'IN_TRANSIT' ? 'blue' : 'warn'}>
+                <Badge variant={d.doStatus === 'DELIVERED' ? 'ok' : d.doStatus === 'DISPATCHED' ? 'blue' : 'warn'}>
                   {d.doStatus?.replace(/_/g, ' ')}
                 </Badge>
                 {d.trackingNo && <span className="text-xs text-gray-500">Tracking: {d.trackingNo}</span>}

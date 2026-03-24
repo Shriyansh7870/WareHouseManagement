@@ -55,7 +55,7 @@ function grnStatusVariant(s: GRNStatus) {
 function NewGRNModal({ onClose }: { onClose: () => void }) {
   const { addGRN, addInventoryItem } = useDataStore();
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<GRNForm>({
-    resolver: zodResolver(grnSchema),
+    resolver: zodResolver(grnSchema) as any,
     defaultValues: { unit: 'units', storageLocation: 'Main Store' },
   });
 
