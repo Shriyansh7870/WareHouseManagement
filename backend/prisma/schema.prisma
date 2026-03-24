@@ -1,0 +1,476 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String
+  name         String
+  role         UserRole
+  department   String?
+  isActive     Boolean    @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  grnRecords    GRN[]          @relation("ReceivedBy")
+  qaInspections QAInspection[] @relation("InspectedBy")
+
+  @@map("users")
+}
+
+enum UserRole {
+  ADMIN
+  QA_MANAGER
+  WAREHOUSE_MANAGER
+  WAREHOUSE_OPERATOR
+  VIEWER
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("refresh_tokens")
+}
+
+model Vendor {
+  id               String        @id @default(cuid())
+  vendorCode       String        @unique
+  companyName      String
+  category         String
+  drugLicenseNo    String?
+  gmpCertification String?
+  qaRating         String?
+  qaPassRatePct    Float?
+  lastAuditDate    DateTime?
+  status           VendorStatus  @default(APPROVED)
+  contactEmail     String?
+  contactPhone     String?
+  address          String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  purchaseOrders PurchaseOrder[]
+  grns           GRN[]
+  asnRecords     ASN[]
+
+  @@map("vendors")
+}
+
+enum VendorStatus {
+  APPROVED
+  REVIEW_DUE
+  SUSPENDED
+  BLACKLISTED
+}
+
+model PurchaseOrder {
+  id               String    @id @default(cuid())
+  poNumber         String    @unique
+  vendorId         String
+  vendor           Vendor    @relation(fields: [vendorId], references: [id])
+  itemName         String
+  itemCode         String
+  qty              Float
+  unit             String
+  expectedDelivery DateTime?
+  status           POStatus  @default(OPEN)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  asns ASN[]
+  grns GRN[]
+
+  @@map("purchase_orders")
+}
+
+enum POStatus {
+  OPEN
+  PARTIAL
+  RECEIVED
+  CANCELLED
+}
+
+model ASN {
+  id               String    @id @default(cuid())
+  asnNumber        String    @unique
+  vendorId         String
+  vendor           Vendor    @relation(fields: [vendorId], references: [id])
+  poId             String?
+  purchaseOrder    PurchaseOrder? @relation(fields: [poId], references: [id])
+  itemName         String?
+  expectedQty      Float?
+  expectedDelivery DateTime?
+  vehicleLR        String?
+  status           ASNStatus @default(PENDING)
+  remarks          String?
+  createdAt        DateTime  @default(now())
+
+  grn GRN?
+
+  @@map("asns")
+}
+
+enum ASNStatus {
+  PENDING
+  RECEIVED
+  PARTIAL
+  CANCELLED
+}
+
+model GRN {
+  id              String    @id @default(cuid())
+  grnNumber       String    @unique
+  vendorId        String
+  vendor          Vendor    @relation(fields: [vendorId], references: [id])
+  poId            String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [poId], references: [id])
+  asnId           String?   @unique
+  asn             ASN?      @relation(fields: [asnId], references: [id])
+  itemName        String
+  itemCode        String
+  batchNumber     String
+  qtyReceived     Float
+  unit            String
+  mfgDate         DateTime
+  expiryDate      DateTime
+  vehicleLR       String?
+  storageLocation String
+  receivedById    String
+  receivedBy      User      @relation("ReceivedBy", fields: [receivedById], references: [id])
+  coaDocId        String?
+  status          GRNStatus @default(PENDING_QA)
+  remarks         String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  qaInspection   QAInspection?
+  inventoryItems InventoryItem[]
+
+  @@map("grns")
+}
+
+enum GRNStatus {
+  PENDING_QA
+  APPROVED
+  QUARANTINE
+  REJECTED
+  ON_HOLD
+}
+
+model InventoryItem {
+  id              String       @id @default(cuid())
+  itemCode        String
+  itemName        String
+  category        ItemCategory
+  batchNumber     String
+  mfgDate         DateTime
+  expiryDate      DateTime
+  qtyOnHand       Float
+  unit            String       @default("units")
+  reorderLevel    Float
+  storageLocation String
+  siteCode        String       @default("MH-SITE-01")
+  qaStatus        QAStatus     @default(APPROVED)
+  grnId           String?
+  grn             GRN?         @relation(fields: [grnId], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  adjustments StockAdjustment[]
+  pickItems   PickItem[]
+
+  @@index([expiryDate])
+  @@index([qaStatus])
+  @@map("inventory_items")
+}
+
+enum ItemCategory {
+  RAW_MATERIAL
+  FINISHED_GOODS
+  INTERMEDIATE
+  PACKAGING
+  API
+}
+
+enum QAStatus {
+  APPROVED
+  QUARANTINE
+  REJECTED
+  ON_HOLD
+  PENDING_QA
+}
+
+model StockAdjustment {
+  id              String         @id @default(cuid())
+  inventoryItemId String
+  inventoryItem   InventoryItem  @relation(fields: [inventoryItemId], references: [id])
+  adjustmentType  String
+  qtyBefore       Float
+  qtyAfter        Float
+  adjustedBy      String
+  reason          String
+  referenceNo     String?
+  createdAt       DateTime       @default(now())
+
+  @@map("stock_adjustments")
+}
+
+model QAInspection {
+  id             String    @id @default(cuid())
+  inspectionId   String    @unique
+  grnId          String    @unique
+  grn            GRN       @relation(fields: [grnId], references: [id])
+  sampledBy      String
+  inspectedById  String
+  inspectedBy    User      @relation("InspectedBy", fields: [inspectedById], references: [id])
+  testParameters Json
+  overallResult  String
+  decision       String
+  tatHours       Float?
+  remarks        String?
+  completedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@map("qa_inspections")
+}
+
+model CAPA {
+  id               String    @id @default(cuid())
+  capaNumber       String    @unique
+  source           String
+  description      String
+  category         String
+  priority         String
+  raisedBy         String
+  assignedTo       String
+  dueDate          DateTime
+  status           String    @default("OPEN")
+  closureDate      DateTime?
+  rootCause        String?
+  correctiveAction String?
+  preventiveAction String?
+  grnReference     String?
+  batchReference   String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@map("capas")
+}
+
+model Deviation {
+  id            String   @id @default(cuid())
+  deviationNo   String   @unique
+  date          DateTime
+  batchRef      String?
+  itemRef       String?
+  deviationType String
+  description   String
+  reportedBy    String
+  capaId        String?
+  status        String   @default("Open")
+  createdAt     DateTime @default(now())
+
+  @@map("deviations")
+}
+
+model Sensor {
+  id        String   @id @default(cuid())
+  sensorId  String   @unique
+  name      String
+  location  String
+  siteCode  String
+  isOnline  Boolean  @default(true)
+  minSpecC  Float
+  maxSpecC  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  readings   SensorReading[]
+  excursions TempExcursion[]
+
+  @@map("sensors")
+}
+
+model SensorReading {
+  id           String   @id @default(cuid())
+  sensorId     String
+  sensor       Sensor   @relation(fields: [sensorId], references: [id])
+  temperatureC Float
+  humidityPct  Float?
+  recordedAt   DateTime @default(now())
+
+  @@index([sensorId, recordedAt])
+  @@map("sensor_readings")
+}
+
+model TempExcursion {
+  id               String   @id @default(cuid())
+  excursionId      String   @unique
+  sensorId         String
+  sensor           Sensor   @relation(fields: [sensorId], references: [id])
+  startTime        DateTime
+  endTime          DateTime?
+  durationMinutes  Int?
+  maxDeviationC    Float
+  severity         String
+  batchesAffected  String[]
+  rootCause        String?
+  impactAssessment String?
+  status           String   @default("Open")
+  createdAt        DateTime @default(now())
+
+  @@map("temp_excursions")
+}
+
+model DeliveryOrder {
+  id           String    @id @default(cuid())
+  doNumber     String    @unique
+  orderDate    DateTime
+  customerId   String
+  customerName String
+  carrier      String?
+  trackingNo   String?
+  pickStatus   String    @default("PENDING")
+  doStatus     String    @default("PENDING")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  pickItems PickItem[]
+
+  @@map("delivery_orders")
+}
+
+model PickItem {
+  id              String        @id @default(cuid())
+  doId            String
+  deliveryOrder   DeliveryOrder @relation(fields: [doId], references: [id])
+  inventoryItemId String
+  inventoryItem   InventoryItem @relation(fields: [inventoryItemId], references: [id])
+  qtyToPick       Float
+  qtyPicked       Float         @default(0)
+  assignedTo      String?
+  status          String        @default("Pending")
+  createdAt       DateTime      @default(now())
+
+  @@map("pick_items")
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  docId       String   @unique
+  title       String
+  docType     String
+  version     String?
+  linkedTo    String?
+  owner       String
+  reviewDate  DateTime?
+  status      String   @default("ACTIVE")
+  fileUrl     String?
+  fileSizeKb  Int?
+  uploadedBy  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("documents")
+}
+
+model CycleCount {
+  id             String   @id @default(cuid())
+  countId        String   @unique
+  countType      String
+  countDate      DateTime
+  zone           String
+  totalSKUs      Int
+  variancesFound Int      @default(0)
+  conductedBy    String
+  status         String   @default("IN_PROGRESS")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  variances CountVariance[]
+
+  @@map("cycle_counts")
+}
+
+model CountVariance {
+  id           String     @id @default(cuid())
+  cycleCountId String
+  cycleCount   CycleCount @relation(fields: [cycleCountId], references: [id])
+  itemName     String
+  batchNumber  String
+  systemQty    Float
+  physicalQty  Float
+  variance     Float
+  variancePct  Float
+  reasonCode   String?
+  adjustedBy   String?
+  createdAt    DateTime   @default(now())
+
+  @@map("count_variances")
+}
+
+model Return {
+  id           String   @id @default(cuid())
+  rmaNumber    String   @unique
+  returnDate   DateTime
+  customerId   String
+  customerName String
+  doReference  String?
+  itemName     String
+  qtyReturned  Float
+  reason       String
+  condition    String
+  disposition  String   @default("PENDING_INSPECTION")
+  status       String   @default("RECEIVED")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("returns")
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  detail     String
+  module     String
+  entityId   String?
+  entityType String?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([module])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+model ReportSchedule {
+  id           String   @id @default(cuid())
+  reportType   String
+  format       String
+  frequency    String
+  deliveryTime String
+  recipients   String[]
+  isActive     Boolean  @default(true)
+  lastRunAt    DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("report_schedules")
+}
