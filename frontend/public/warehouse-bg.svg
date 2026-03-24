@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" fill="none">
+  <defs>
+    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f0f1a"/>
+      <stop offset="100%" stop-color="#1a1a2e"/>
+    </linearGradient>
+    <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#16213e"/>
+      <stop offset="100%" stop-color="#0f0f1a"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6c63ff" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="shelfGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#2d2d4e"/>
+      <stop offset="100%" stop-color="#1e1e3a"/>
+    </linearGradient>
+    <linearGradient id="boxGrad1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6c63ff" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#6c63ff" stop-opacity="0.15"/>
+    </linearGradient>
+    <linearGradient id="boxGrad2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f97316" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#f97316" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="boxGrad3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#22c55e" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#22c55e" stop-opacity="0.12"/>
+    </linearGradient>
+    <linearGradient id="boxGrad4" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.12"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softGlow">
+      <feGaussianBlur stdDeviation="20" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="900" fill="url(#skyGrad)"/>
+
+  <!-- Grid pattern on floor -->
+  <g opacity="0.08">
+    <line x1="0" y1="550" x2="1200" y2="550" stroke="#6c63ff" stroke-width="1"/>
+    <line x1="0" y1="600" x2="1200" y2="600" stroke="#6c63ff" stroke-width="1"/>
+    <line x1="0" y1="650" x2="1200" y2="650" stroke="#6c63ff" stroke-width="1"/>
+    <line x1="0" y1="700" x2="1200" y2="700" stroke="#6c63ff" stroke-width="1"/>
+    <line x1="0" y1="750" x2="1200" y2="750" stroke="#6c63ff" stroke-width="1"/>
+    <line x1="0" y1="800" x2="1200" y2="800" stroke="#6c63ff" stroke-width="1"/>
+    <line x1="0" y1="850" x2="1200" y2="850" stroke="#6c63ff" stroke-width="1"/>
+    <!-- Perspective lines -->
+    <line x1="600" y1="300" x2="0" y2="900" stroke="#6c63ff" stroke-width="0.5"/>
+    <line x1="600" y1="300" x2="200" y2="900" stroke="#6c63ff" stroke-width="0.5"/>
+    <line x1="600" y1="300" x2="400" y2="900" stroke="#6c63ff" stroke-width="0.5"/>
+    <line x1="600" y1="300" x2="600" y2="900" stroke="#6c63ff" stroke-width="0.5"/>
+    <line x1="600" y1="300" x2="800" y2="900" stroke="#6c63ff" stroke-width="0.5"/>
+    <line x1="600" y1="300" x2="1000" y2="900" stroke="#6c63ff" stroke-width="0.5"/>
+    <line x1="600" y1="300" x2="1200" y2="900" stroke="#6c63ff" stroke-width="0.5"/>
+  </g>
+
+  <!-- Warehouse structure - back wall -->
+  <rect x="50" y="120" width="1100" height="430" fill="#16213e" opacity="0.5" rx="4"/>
+  <rect x="50" y="120" width="1100" height="430" stroke="#2d2d4e" stroke-width="1" fill="none" rx="4"/>
+
+  <!-- Roof truss -->
+  <polygon points="600,40 50,120 1150,120" fill="#1e1e3a" stroke="#2d2d4e" stroke-width="1"/>
+  <line x1="600" y1="40" x2="600" y2="120" stroke="#2d2d4e" stroke-width="1"/>
+  <line x1="600" y1="40" x2="325" y2="120" stroke="#2d2d4e" stroke-width="0.5" opacity="0.5"/>
+  <line x1="600" y1="40" x2="875" y2="120" stroke="#2d2d4e" stroke-width="0.5" opacity="0.5"/>
+
+  <!-- Ceiling lights -->
+  <g filter="url(#glow)">
+    <rect x="280" y="125" width="40" height="6" rx="3" fill="#6c63ff" opacity="0.6"/>
+    <rect x="480" y="125" width="40" height="6" rx="3" fill="#6c63ff" opacity="0.6"/>
+    <rect x="680" y="125" width="40" height="6" rx="3" fill="#6c63ff" opacity="0.6"/>
+    <rect x="880" y="125" width="40" height="6" rx="3" fill="#6c63ff" opacity="0.6"/>
+  </g>
+  <!-- Light beams -->
+  <polygon points="280,131 320,131 360,550 240,550" fill="#6c63ff" opacity="0.02"/>
+  <polygon points="480,131 520,131 560,550 440,550" fill="#6c63ff" opacity="0.02"/>
+  <polygon points="680,131 720,131 760,550 640,550" fill="#6c63ff" opacity="0.02"/>
+  <polygon points="880,131 920,131 960,550 840,550" fill="#6c63ff" opacity="0.02"/>
+
+  <!-- Shelving unit 1 (left) -->
+  <g>
+    <!-- Uprights -->
+    <rect x="100" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <rect x="260" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <!-- Shelves -->
+    <rect x="96" y="220" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="96" y="310" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="96" y="400" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="96" y="490" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <!-- Boxes on shelf 1 -->
+    <rect x="115" y="180" width="50" height="36" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="175" y="190" width="40" height="26" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="225" y="185" width="35" height="31" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <!-- Boxes on shelf 2 -->
+    <rect x="110" y="270" width="55" height="36" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="180" y="275" width="45" height="31" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <!-- Boxes on shelf 3 -->
+    <rect x="115" y="360" width="60" height="36" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="190" y="365" width="50" height="31" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <!-- Boxes on shelf 4 -->
+    <rect x="110" y="450" width="70" height="36" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="195" y="455" width="55" height="31" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Shelving unit 2 (center-left) -->
+  <g>
+    <rect x="310" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <rect x="470" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <rect x="306" y="220" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="306" y="310" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="306" y="400" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="306" y="490" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="325" y="185" width="45" height="31" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="380" y="180" width="50" height="36" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="440" y="190" width="30" height="26" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="320" y="270" width="60" height="36" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="395" y="275" width="50" height="31" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="325" y="360" width="55" height="36" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="400" y="362" width="45" height="34" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="320" y="450" width="65" height="36" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="400" y="455" width="55" height="31" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Shelving unit 3 (center-right) -->
+  <g>
+    <rect x="530" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <rect x="690" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <rect x="526" y="220" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="526" y="310" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="526" y="400" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="526" y="490" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="545" y="182" width="50" height="34" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="610" y="185" width="40" height="31" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="660" y="188" width="30" height="28" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="540" y="268" width="55" height="38" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="610" y="272" width="50" height="34" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="545" y="358" width="60" height="38" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="620" y="362" width="45" height="34" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="540" y="448" width="70" height="38" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="625" y="452" width="50" height="34" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Shelving unit 4 (right) -->
+  <g>
+    <rect x="740" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <rect x="900" y="160" width="8" height="390" fill="url(#shelfGrad)" rx="2"/>
+    <rect x="736" y="220" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="736" y="310" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="736" y="400" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="736" y="490" width="176" height="4" fill="#3d3d5e" rx="1"/>
+    <rect x="755" y="180" width="55" height="36" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="825" y="185" width="40" height="31" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="875" y="188" width="25" height="28" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="752" y="270" width="50" height="36" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="815" y="275" width="60" height="31" rx="3" fill="url(#boxGrad4)" stroke="#3b82f6" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="755" y="360" width="65" height="36" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="835" y="362" width="45" height="34" rx="3" fill="url(#boxGrad3)" stroke="#22c55e" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="752" y="450" width="55" height="36" rx="3" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="825" y="455" width="60" height="31" rx="3" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Forklift silhouette -->
+  <g transform="translate(950, 420)" opacity="0.15">
+    <!-- Body -->
+    <rect x="0" y="40" width="120" height="60" rx="5" fill="#6c63ff"/>
+    <!-- Cabin -->
+    <rect x="70" y="0" width="50" height="100" rx="5" fill="#6c63ff"/>
+    <!-- Wheels -->
+    <circle cx="25" cy="110" r="16" fill="#6c63ff"/>
+    <circle cx="95" cy="110" r="12" fill="#6c63ff"/>
+    <!-- Forks -->
+    <rect x="-60" y="70" width="65" height="6" rx="2" fill="#6c63ff"/>
+    <rect x="-60" y="90" width="65" height="6" rx="2" fill="#6c63ff"/>
+    <!-- Mast -->
+    <rect x="-5" y="-20" width="8" height="120" rx="2" fill="#6c63ff"/>
+  </g>
+
+  <!-- Floor -->
+  <rect x="0" y="550" width="1200" height="350" fill="url(#floorGrad)"/>
+
+  <!-- Floor markings -->
+  <g opacity="0.1">
+    <rect x="80" y="570" width="300" height="2" fill="#f97316" rx="1"/>
+    <rect x="80" y="570" width="2" height="200" fill="#f97316" rx="1"/>
+    <rect x="380" y="570" width="2" height="200" fill="#f97316" rx="1"/>
+    <rect x="80" y="770" width="302" height="2" fill="#f97316" rx="1"/>
+  </g>
+  <g opacity="0.1">
+    <rect x="500" y="580" width="250" height="2" fill="#22c55e" rx="1"/>
+    <rect x="500" y="580" width="2" height="180" fill="#22c55e" rx="1"/>
+    <rect x="750" y="580" width="2" height="180" fill="#22c55e" rx="1"/>
+    <rect x="500" y="760" width="252" height="2" fill="#22c55e" rx="1"/>
+  </g>
+
+  <!-- Pallets on floor -->
+  <g opacity="0.2">
+    <rect x="130" y="610" width="80" height="60" rx="3" fill="#2d2d4e" stroke="#3d3d5e" stroke-width="1"/>
+    <rect x="130" y="600" width="80" height="14" rx="2" fill="url(#boxGrad1)" stroke="#6c63ff" stroke-width="0.5" stroke-opacity="0.3"/>
+    <rect x="250" y="620" width="70" height="50" rx="3" fill="#2d2d4e" stroke="#3d3d5e" stroke-width="1"/>
+    <rect x="250" y="610" width="70" height="14" rx="2" fill="url(#boxGrad2)" stroke="#f97316" stroke-width="0.5" stroke-opacity="0.3"/>
+  </g>
+
+  <!-- Floating particles / dust -->
+  <g opacity="0.15">
+    <circle cx="200" cy="200" r="2" fill="#6c63ff"/>
+    <circle cx="500" cy="150" r="1.5" fill="#a78bfa"/>
+    <circle cx="800" cy="250" r="2" fill="#6c63ff"/>
+    <circle cx="350" cy="350" r="1" fill="#a78bfa"/>
+    <circle cx="650" cy="180" r="1.5" fill="#6c63ff"/>
+    <circle cx="950" cy="300" r="2" fill="#a78bfa"/>
+    <circle cx="150" cy="400" r="1" fill="#6c63ff"/>
+    <circle cx="1050" cy="200" r="1.5" fill="#a78bfa"/>
+  </g>
+
+  <!-- Ambient glow -->
+  <circle cx="600" cy="350" r="300" fill="#6c63ff" opacity="0.03" filter="url(#softGlow)"/>
+</svg>

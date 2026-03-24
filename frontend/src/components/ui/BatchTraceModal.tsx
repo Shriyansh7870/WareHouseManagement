@@ -162,10 +162,10 @@ export default function BatchTraceModal({ batchNumber, onClose }: BatchTraceModa
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4 border-b"
-          style={{ borderColor: 'var(--border)', background: 'linear-gradient(135deg, #6c63ff12, #a78bfa08)' }}
+          style={{ borderColor: 'var(--border)', background: 'linear-gradient(135deg, #D4A84712, #E8B94A08)' }}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent-purple)', opacity: 0.9 }}>
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'var(--accent-gold)', opacity: 0.9 }}>
               <ClipboardList size={16} className="text-white" />
             </div>
             <div>

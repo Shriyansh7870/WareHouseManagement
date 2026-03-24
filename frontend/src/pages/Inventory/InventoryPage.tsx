@@ -114,7 +114,7 @@ function StockAdjustmentModal({ item, onClose }: StockAdjModalProps) {
           <select
             value={type}
             onChange={(e) => setType(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30"
           >
             <option value="POSITIVE">Positive (+)</option>
             <option value="NEGATIVE">Negative (−)</option>
@@ -129,7 +129,7 @@ function StockAdjustmentModal({ item, onClose }: StockAdjModalProps) {
             value={qty}
             onChange={(e) => setQty(e.target.value)}
             placeholder="Enter quantity"
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30"
           />
         </div>
         <div>
@@ -139,7 +139,7 @@ function StockAdjustmentModal({ item, onClose }: StockAdjModalProps) {
             onChange={(e) => setReason(e.target.value)}
             rows={3}
             placeholder="Reason for adjustment..."
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 resize-none"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none"
           />
         </div>
         <div className="bg-gray-50 rounded-lg p-3">
@@ -223,7 +223,7 @@ export default function InventoryPage() {
         <select
           value={statusFilter}
           onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}
-          className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30"
+          className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30"
         >
           <option value="">All Status</option>
           {Object.entries(QA_STATUS_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -231,7 +231,7 @@ export default function InventoryPage() {
         <select
           value={categoryFilter}
           onChange={(e) => { setCategoryFilter(e.target.value); setPage(0); }}
-          className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30"
+          className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30"
         >
           <option value="">All Categories</option>
           {Object.entries(CATEGORY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
@@ -317,7 +317,7 @@ export default function InventoryPage() {
                     <td className="px-3 py-2.5">
                       <button
                         onClick={() => setTraceBatch(item.batchNumber)}
-                        className="font-mono text-xs text-[#6c63ff] hover:underline flex items-center gap-1"
+                        className="font-mono text-xs text-[#D4A847] hover:underline flex items-center gap-1"
                         title="View batch traceability"
                       >
                         {item.batchNumber} <GitBranch size={10} />
@@ -378,7 +378,7 @@ export default function InventoryPage() {
                 onClick={() => setPage(i)}
                 className={`px-3 py-1 text-xs border rounded transition-colors ${
                   page === i
-                    ? 'border-[#6c63ff] text-[#6c63ff] bg-purple-50'
+                    ? 'border-[#D4A847] text-[#D4A847] bg-purple-50'
                     : 'border-gray-200 hover:bg-gray-50'
                 }`}
               >

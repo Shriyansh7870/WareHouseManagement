@@ -115,7 +115,7 @@ function NewGRNModal({ onClose }: { onClose: () => void }) {
         type={type}
         placeholder={placeholder}
         {...register(name)}
-        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors[name] ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
+        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors[name] ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
       />
       {errors[name] && <p className="text-[11px] text-red-500 mt-0.5">{errors[name]?.message}</p>}
     </div>
@@ -138,7 +138,7 @@ function NewGRNModal({ onClose }: { onClose: () => void }) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Supplier <span className="text-red-500">*</span></label>
-          <select {...register('vendorName')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.vendorName ? 'border-red-400' : 'border-gray-200'}`}>
+          <select {...register('vendorName')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.vendorName ? 'border-red-400' : 'border-gray-200'}`}>
             <option value="">Select supplier</option>
             {['Cipla Ltd.', 'Sun Pharma', 'Lupin Ltd.', "Dr. Reddy's", 'Aurobindo', 'Zydus Cadila'].map(o => <option key={o}>{o}</option>)}
           </select>
@@ -151,7 +151,7 @@ function NewGRNModal({ onClose }: { onClose: () => void }) {
         <Field label="Qty Received" name="qtyReceived" type="number" placeholder="0" />
         <div>
           <label className="block text-xs text-gray-500 mb-1">Unit <span className="text-red-500">*</span></label>
-          <select {...register('unit')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30">
+          <select {...register('unit')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
             {['units', 'kg', 'liters', 'meters'].map(o => <option key={o}>{o}</option>)}
           </select>
         </div>
@@ -160,15 +160,15 @@ function NewGRNModal({ onClose }: { onClose: () => void }) {
         <Field label="Vehicle / LR No." name="vehicleLR" placeholder="MH-XX-AB-1234" required={false} />
         <div>
           <label className="block text-xs text-gray-500 mb-1">Storage Location <span className="text-red-500">*</span></label>
-          <select {...register('storageLocation')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30">
+          <select {...register('storageLocation')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
             {['Main Store', 'Cold Room A', 'Cold Room B', 'Raw Material Store', 'Quarantine Zone'].map(o => <option key={o}>{o}</option>)}
           </select>
         </div>
         <div className="col-span-2">
           <label className="block text-xs text-gray-500 mb-1">Remarks</label>
-          <textarea {...register('remarks')} rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 resize-none" placeholder="Optional remarks..." />
+          <textarea {...register('remarks')} rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none" placeholder="Optional remarks..." />
         </div>
-        <div className="col-span-2 border-2 border-dashed border-gray-200 rounded-lg p-4 text-center text-xs text-gray-400 cursor-pointer hover:border-[#6c63ff] hover:text-[#6c63ff] transition-colors">
+        <div className="col-span-2 border-2 border-dashed border-gray-200 rounded-lg p-4 text-center text-xs text-gray-400 cursor-pointer hover:border-[#D4A847] hover:text-[#D4A847] transition-colors">
           Click to upload CoA (PDF/DOCX, max 25MB)
         </div>
       </div>
@@ -230,15 +230,15 @@ export default function GRNPage() {
             <div className="flex items-center gap-1.5">
               <span className="text-xs text-gray-400">From</span>
               <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0); }}
-                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#6c63ff]/40"
+                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#D4A847]/40"
               />
               <span className="text-xs text-gray-400">To</span>
               <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }}
-                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#6c63ff]/40"
+                className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#D4A847]/40"
               />
             </div>
             <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(0); }}
-              className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#6c63ff]/40"
+              className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#D4A847]/40"
             >
               <option value="">All Status</option>
               {['PENDING_QA', 'APPROVED', 'QUARANTINE', 'REJECTED', 'ON_HOLD'].map(s => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
@@ -295,12 +295,12 @@ export default function GRNPage() {
               <tbody className="divide-y divide-gray-50">
                 {paged.map(grn => (
                   <tr key={grn.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{grn.grnNumber}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{grn.grnNumber}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{formatDate(grn.createdAt)}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{grn.vendorName}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{grn.itemName}</td>
                     <td className="px-3 py-2.5">
-                      <button onClick={() => setTraceBatch(grn.batchNumber)} className="font-mono text-xs text-[#6c63ff] hover:underline flex items-center gap-1" title="View batch traceability">
+                      <button onClick={() => setTraceBatch(grn.batchNumber)} className="font-mono text-xs text-[#D4A847] hover:underline flex items-center gap-1" title="View batch traceability">
                         {grn.batchNumber} <GitBranch size={10} />
                       </button>
                     </td>
@@ -329,7 +329,7 @@ export default function GRNPage() {
             <div className="flex gap-1">
               <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="px-3 py-1 text-xs border border-gray-200 rounded disabled:opacity-40 hover:bg-gray-50">Prev</button>
               {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
-                <button key={i} onClick={() => setPage(i)} className={`px-3 py-1 text-xs border rounded ${page === i ? 'border-[#6c63ff] text-[#6c63ff] bg-purple-50' : 'border-gray-200 hover:bg-gray-50'}`}>{i + 1}</button>
+                <button key={i} onClick={() => setPage(i)} className={`px-3 py-1 text-xs border rounded ${page === i ? 'border-[#D4A847] text-[#D4A847] bg-purple-50' : 'border-gray-200 hover:bg-gray-50'}`}>{i + 1}</button>
               ))}
               <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="px-3 py-1 text-xs border border-gray-200 rounded disabled:opacity-40 hover:bg-gray-50">Next</button>
             </div>
@@ -353,7 +353,7 @@ export default function GRNPage() {
               <tbody className="divide-y divide-gray-50">
                 {asns.map(asn => (
                   <tr key={asn.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{asn.asnNumber}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{asn.asnNumber}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{asn.vendorName}</td>
                     <td className="px-3 py-2.5 font-mono text-xs text-gray-600">{asn.poReference ?? '—'}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{asn.itemName ?? '—'}</td>

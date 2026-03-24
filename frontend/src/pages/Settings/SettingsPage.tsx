@@ -70,7 +70,7 @@ export default function SettingsPage() {
                     <tr key={u.id} className="hover:bg-gray-50/50 transition-colors">
                       <td className="px-3 py-2.5">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: 'linear-gradient(135deg, #6c63ff, #f97316)' }}>
+                          <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ background: 'linear-gradient(135deg, #D4A847, #f97316)' }}>
                             {u.name.split(' ').map((n) => n[0]).join('').slice(0, 2)}
                           </div>
                           <span className="text-sm font-medium text-gray-800">{u.name}</span>
@@ -119,7 +119,7 @@ export default function SettingsPage() {
               ].map(({ label, value }) => (
                 <div key={label}>
                   <label className="block text-xs text-gray-500 mb-1">{label}</label>
-                  <input defaultValue={value} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+                  <input defaultValue={value} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
                 </div>
               ))}
             </div>
@@ -134,7 +134,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => setFefo(!fefo)}
-                  className={`w-11 h-6 rounded-full transition-colors ${fefo ? 'bg-[#6c63ff]' : 'bg-gray-300'}`}
+                  className={`w-11 h-6 rounded-full transition-colors ${fefo ? 'bg-[#D4A847]' : 'bg-gray-300'}`}
                 >
                   <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${fefo ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
@@ -146,7 +146,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => setEmailNotif(!emailNotif)}
-                  className={`w-11 h-6 rounded-full transition-colors ${emailNotif ? 'bg-[#6c63ff]' : 'bg-gray-300'}`}
+                  className={`w-11 h-6 rounded-full transition-colors ${emailNotif ? 'bg-[#D4A847]' : 'bg-gray-300'}`}
                 >
                   <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${emailNotif ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
@@ -156,7 +156,7 @@ export default function SettingsPage() {
                   <div className="font-medium text-gray-800">Dark Mode</div>
                   <div className="text-xs text-gray-500">Switch to dark interface theme</div>
                 </div>
-                <button onClick={toggle} className={`w-11 h-6 rounded-full transition-colors ${dark ? 'bg-[#6c63ff]' : 'bg-gray-300'}`}>
+                <button onClick={toggle} className={`w-11 h-6 rounded-full transition-colors ${dark ? 'bg-[#D4A847]' : 'bg-gray-300'}`}>
                   <div className={`w-4 h-4 bg-white rounded-full shadow transition-transform mx-1 ${dark ? 'translate-x-5' : 'translate-x-0'}`} />
                 </button>
               </div>
@@ -177,7 +177,7 @@ export default function SettingsPage() {
               ].map(({ label, value }) => (
                 <div key={label}>
                   <label className="block text-xs text-gray-500 mb-1">{label}</label>
-                  <input type="number" defaultValue={value} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+                  <input type="number" defaultValue={value} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
                 </div>
               ))}
               <Button variant="primary" className="w-full">Save Configuration</Button>
@@ -200,7 +200,7 @@ export default function SettingsPage() {
               ].map(({ label, value, type }) => (
                 <div key={label}>
                   <label className="block text-xs text-gray-500 mb-1">{label}</label>
-                  <input type={type} defaultValue={value} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+                  <input type={type} defaultValue={value} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
                 </div>
               ))}
               <Button variant="primary">Save Notification Rules</Button>

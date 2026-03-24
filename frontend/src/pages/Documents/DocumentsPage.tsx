@@ -56,23 +56,23 @@ function UploadDocumentModal({ onClose }: { onClose: () => void }) {
       <div className="space-y-4 text-sm">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Title <span className="text-red-500">*</span></label>
-          <input type="text" placeholder="Document title" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+          <input type="text" placeholder="Document title" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
         </div>
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-xs text-gray-500 mb-1">Type <span className="text-red-500">*</span></label>
-            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30">
+            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
               <option value="">Select type</option>
               {['SOP', 'CoA', 'Validation', 'Regulatory', 'CAPA', 'Audit Report', 'Policy'].map((t) => <option key={t}>{t}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Version</label>
-            <input type="text" placeholder="e.g. 1.0, 2.1" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+            <input type="text" placeholder="e.g. 1.0, 2.1" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Owner <span className="text-red-500">*</span></label>
-            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30">
+            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
               <option>Rahul Mehta</option>
               <option>Priya Sharma</option>
               <option>Amit Kumar</option>
@@ -80,21 +80,21 @@ function UploadDocumentModal({ onClose }: { onClose: () => void }) {
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">Review Date</label>
-            <input type="date" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+            <input type="date" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
           </div>
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Linked To</label>
-          <input type="text" placeholder="GRN No., Batch No., Module..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+          <input type="text" placeholder="GRN No., Batch No., Module..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
         </div>
         <div
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragging ? 'border-[#6c63ff] bg-purple-50' : 'border-gray-200 hover:border-[#6c63ff]'}`}
+          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragging ? 'border-[#D4A847] bg-purple-50' : 'border-gray-200 hover:border-[#D4A847]'}`}
           onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
           onDragLeave={() => setDragging(false)}
           onDrop={() => setDragging(false)}
         >
           <Upload size={24} className="mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-500">Drag & drop or <span className="text-[#6c63ff] font-medium">click to browse</span></p>
+          <p className="text-sm text-gray-500">Drag & drop or <span className="text-[#D4A847] font-medium">click to browse</span></p>
           <p className="text-xs text-gray-400 mt-1">PDF, DOCX, XLSX — max 25MB</p>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function DocumentsPage() {
         <tbody className="divide-y divide-gray-50">
           {data.map((doc) => (
             <tr key={doc.id} className="hover:bg-gray-50/50 transition-colors">
-              <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{doc.docId}</td>
+              <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{doc.docId}</td>
               <td className="px-3 py-2.5 text-sm text-gray-700 max-w-[180px]">
                 <div className="truncate" title={doc.title}>{doc.title}</div>
               </td>

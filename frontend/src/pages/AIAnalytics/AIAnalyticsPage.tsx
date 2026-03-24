@@ -84,8 +84,8 @@ export default function AIAnalyticsPage() {
               onClick={() => setCatFilter(c)}
               className={`px-2.5 py-1 text-[11px] rounded-full border transition-colors capitalize ${
                 catFilter === c
-                  ? 'bg-[#6c63ff] text-white border-[#6c63ff]'
-                  : 'border-gray-200 text-gray-500 hover:border-[#6c63ff] hover:text-[#6c63ff]'
+                  ? 'bg-[#D4A847] text-white border-[#D4A847]'
+                  : 'border-gray-200 text-gray-500 hover:border-[#D4A847] hover:text-[#D4A847]'
               }`}
             >
               {c}
@@ -167,7 +167,7 @@ export default function AIAnalyticsPage() {
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
               <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Line type="monotone" dataKey="Actual" stroke="#6c63ff" strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
+              <Line type="monotone" dataKey="Actual" stroke="#D4A847" strokeWidth={2} dot={{ r: 3 }} connectNulls={false} />
               <Line type="monotone" dataKey="Forecast" stroke="#f97316" strokeWidth={2} strokeDasharray="6 3" dot={false} connectNulls={false} />
               <Line type="monotone" dataKey="Low" stroke="#ef4444" strokeWidth={1} strokeDasharray="3 3" dot={false} connectNulls={false} />
               <Line type="monotone" dataKey="High" stroke="#22c55e" strokeWidth={1} strokeDasharray="3 3" dot={false} connectNulls={false} />
@@ -181,7 +181,7 @@ export default function AIAnalyticsPage() {
               <PolarGrid stroke="#e5e7eb" />
               <PolarAngleAxis dataKey="axis" tick={{ fontSize: 11, fill: '#6b7280' }} />
               <PolarRadiusAxis domain={[0, 100]} tick={{ fontSize: 9 }} />
-              <Radar dataKey="value" stroke="#6c63ff" fill="#6c63ff" fillOpacity={0.18} strokeWidth={2} />
+              <Radar dataKey="value" stroke="#D4A847" fill="#D4A847" fillOpacity={0.18} strokeWidth={2} />
             </RadarChart>
           </ResponsiveContainer>
         </Card>
@@ -191,7 +191,7 @@ export default function AIAnalyticsPage() {
       <Card title="AI Reorder Recommendations">
         <div className="space-y-3">
           {REORDER_ITEMS.map((item) => (
-            <div key={item.item} className="flex items-center justify-between p-3.5 rounded-lg border border-gray-100 hover:border-[#6c63ff]/30 hover:bg-purple-50/20 transition-colors">
+            <div key={item.item} className="flex items-center justify-between p-3.5 rounded-lg border border-gray-100 hover:border-[#D4A847]/30 hover:bg-purple-50/20 transition-colors">
               <div>
                 <div className="font-medium text-sm text-gray-800">{item.item}</div>
                 <div className="text-xs text-gray-500 mt-0.5">
@@ -201,13 +201,13 @@ export default function AIAnalyticsPage() {
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-right">
-                  <div className="font-mono font-bold text-[#6c63ff]">{item.reorderQty.toLocaleString()}</div>
+                  <div className="font-mono font-bold text-[#D4A847]">{item.reorderQty.toLocaleString()}</div>
                   <div className="text-[10px] text-gray-400">Recommended qty</div>
                 </div>
                 <Badge variant={(item.urgency === 'High' ? 'danger' : item.urgency === 'Medium' ? 'warn' : 'ok') as BadgeVariant}>
                   {item.urgency}
                 </Badge>
-                <button className="px-3 py-1.5 text-xs rounded bg-[#6c63ff] text-white hover:bg-[#5b52e0] transition-colors">
+                <button className="px-3 py-1.5 text-xs rounded bg-[#D4A847] text-white hover:bg-[#B8922E] transition-colors">
                   Raise PO
                 </button>
               </div>

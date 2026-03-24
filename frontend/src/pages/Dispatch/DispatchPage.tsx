@@ -90,27 +90,27 @@ function CreateDOModal({ onClose }: { onClose: () => void }) {
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Customer Name <span className="text-red-500">*</span></label>
-          <input {...register('customerName')} placeholder="Customer name" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.customerName ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+          <input {...register('customerName')} placeholder="Customer name" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.customerName ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
           {errors.customerName && <p className="text-[11px] text-red-500 mt-0.5">{errors.customerName.message}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Order Date <span className="text-red-500">*</span></label>
-          <input type="date" {...register('orderDate')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.orderDate ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+          <input type="date" {...register('orderDate')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.orderDate ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
           {errors.orderDate && <p className="text-[11px] text-red-500 mt-0.5">{errors.orderDate.message}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Item(s) <span className="text-red-500">*</span></label>
-          <input {...register('items')} placeholder="Item name(s)" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.items ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+          <input {...register('items')} placeholder="Item name(s)" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.items ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
           {errors.items && <p className="text-[11px] text-red-500 mt-0.5">{errors.items.message}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Total Qty <span className="text-red-500">*</span></label>
-          <input type="number" {...register('qty')} placeholder="0" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.qty ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+          <input type="number" {...register('qty')} placeholder="0" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.qty ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
           {errors.qty && <p className="text-[11px] text-red-500 mt-0.5">{errors.qty.message}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Carrier <span className="text-red-500">*</span></label>
-          <select {...register('carrier')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.carrier ? 'border-red-400' : 'border-gray-200'}`}>
+          <select {...register('carrier')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.carrier ? 'border-red-400' : 'border-gray-200'}`}>
             <option value="">Select carrier</option>
             {['Blue Dart', 'DTDC', 'Delhivery', 'FedEx', 'DHL'].map(o => <option key={o}>{o}</option>)}
           </select>
@@ -118,7 +118,7 @@ function CreateDOModal({ onClose }: { onClose: () => void }) {
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Tracking No.</label>
-          <input {...register('trackingNo')} placeholder="AWB/tracking no." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+          <input {...register('trackingNo')} placeholder="AWB/tracking no." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
         </div>
         <div className="col-span-2 bg-blue-50 rounded-lg p-3 text-xs text-blue-700 border border-blue-200">
           FEFO enforcement is active. Pick items will be automatically assigned from the earliest-expiry batch.
@@ -182,7 +182,7 @@ export default function DispatchPage() {
               <tbody className="divide-y divide-gray-50">
                 {filteredOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{order.doNumber}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{order.doNumber}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{formatDate(order.orderDate)}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{order.customerName}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-500 max-w-[140px] truncate">{order.items}</td>
@@ -232,7 +232,7 @@ export default function DispatchPage() {
                 <tbody className="divide-y divide-gray-50">
                   {pickItems.map((item) => (
                     <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
-                      <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{item.pickListId}</td>
+                      <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{item.pickListId}</td>
                       <td className="px-3 py-2.5 font-mono text-xs text-gray-600">{item.doReference}</td>
                       <td className="px-3 py-2.5 text-sm text-gray-700">{item.itemName}</td>
                       <td className="px-3 py-2.5">
@@ -275,7 +275,7 @@ export default function DispatchPage() {
               <tbody className="divide-y divide-gray-50">
                 {packedOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{order.doNumber}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{order.doNumber}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{order.customerName}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-500">{order.items}</td>
                     <td className="px-3 py-2.5 font-mono text-xs font-semibold">{order.qty.toLocaleString()}</td>

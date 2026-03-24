@@ -161,7 +161,7 @@ export default function ColdChainPage() {
                 <Tooltip formatter={(v) => [`${v}°C`]} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <ReferenceArea y1={2} y2={8} fill="#22c55e" fillOpacity={0.06} />
-                <Line type="monotone" dataKey="Cold Room A" stroke="#6c63ff" strokeWidth={2} dot={false} />
+                <Line type="monotone" dataKey="Cold Room A" stroke="#D4A847" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="Cold Room B" stroke="#3b82f6" strokeWidth={2} dot={false} />
                 <Line type="monotone" dataKey="Vehicle" stroke="#f97316" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
               </LineChart>
@@ -197,7 +197,7 @@ export default function ColdChainPage() {
               <tbody className="divide-y divide-gray-50">
                 {MOCK_EXCURSIONS.map((exc) => (
                   <tr key={exc.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{exc.excursionId}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{exc.excursionId}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{formatDateTime(exc.startTime)}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{exc.location}</td>
                     <td className="px-3 py-2.5 font-mono text-xs">{exc.durationMinutes ?? '—'} min</td>

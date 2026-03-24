@@ -99,7 +99,7 @@ function NewCAPAModal({ onClose }: { onClose: () => void }) {
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Source <span className="text-red-500">*</span></label>
-          <select {...register('source')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.source ? 'border-red-400' : 'border-gray-200'}`}>
+          <select {...register('source')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.source ? 'border-red-400' : 'border-gray-200'}`}>
             <option value="">Select source</option>
             {['QA Inspection', 'Customer Complaint', 'Deviation', 'Audit', 'Regulatory', 'Internal'].map(o => <option key={o}>{o}</option>)}
           </select>
@@ -107,7 +107,7 @@ function NewCAPAModal({ onClose }: { onClose: () => void }) {
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Priority <span className="text-red-500">*</span></label>
-          <select {...register('priority')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30">
+          <select {...register('priority')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
             <option value="CRITICAL">Critical</option>
             <option value="MAJOR">Major</option>
             <option value="MINOR">Minor</option>
@@ -115,31 +115,31 @@ function NewCAPAModal({ onClose }: { onClose: () => void }) {
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Category <span className="text-red-500">*</span></label>
-          <input {...register('category')} placeholder="e.g. Product Quality" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.category ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+          <input {...register('category')} placeholder="e.g. Product Quality" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.category ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
           {errors.category && <p className="text-[11px] text-red-500 mt-0.5">{errors.category.message}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Due Date <span className="text-red-500">*</span></label>
-          <input type="date" {...register('dueDate')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.dueDate ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+          <input type="date" {...register('dueDate')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.dueDate ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
           {errors.dueDate && <p className="text-[11px] text-red-500 mt-0.5">{errors.dueDate.message}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Assigned To <span className="text-red-500">*</span></label>
-          <input {...register('assignedTo')} placeholder="Assignee name" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 ${errors.assignedTo ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
+          <input {...register('assignedTo')} placeholder="Assignee name" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.assignedTo ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
           {errors.assignedTo && <p className="text-[11px] text-red-500 mt-0.5">{errors.assignedTo.message}</p>}
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">GRN Reference</label>
-          <input {...register('grnRef')} placeholder="GRN-2024-XXXX" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+          <input {...register('grnRef')} placeholder="GRN-2024-XXXX" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
         </div>
         <div className="col-span-2">
           <label className="block text-xs text-gray-500 mb-1">Description <span className="text-red-500">*</span></label>
-          <textarea {...register('description')} rows={3} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 resize-none ${errors.description ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="Describe the CAPA..." />
+          <textarea {...register('description')} rows={3} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none ${errors.description ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="Describe the CAPA..." />
           {errors.description && <p className="text-[11px] text-red-500 mt-0.5">{errors.description.message}</p>}
         </div>
         <div className="col-span-2">
           <label className="block text-xs text-gray-500 mb-1">Corrective Action</label>
-          <textarea {...register('correctiveAction')} rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 resize-none" placeholder="Steps to correct..." />
+          <textarea {...register('correctiveAction')} rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none" placeholder="Steps to correct..." />
         </div>
       </div>
     </Modal>
@@ -220,7 +220,7 @@ export default function QAPage() {
               <tbody className="divide-y divide-gray-50">
                 {qaInspections.map((insp) => (
                   <tr key={insp.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{insp.inspectionId}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{insp.inspectionId}</td>
                     <td className="px-3 py-2.5 font-mono text-xs text-gray-600">{insp.grnLinked}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{insp.itemName}</td>
                     <td className="px-3 py-2.5 font-mono text-xs text-gray-600">{insp.batchNumber}</td>
@@ -325,7 +325,7 @@ export default function QAPage() {
               <tbody className="divide-y divide-gray-50">
                 {capas.map((capa) => (
                   <tr key={capa.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{capa.capaNumber}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{capa.capaNumber}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-500">{capa.source.replace('_', ' ')}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-700 max-w-[180px]">
                       <div className="truncate" title={capa.description}>{capa.description}</div>
@@ -367,7 +367,7 @@ export default function QAPage() {
               <tbody className="divide-y divide-gray-50">
                 {deviations.map((dev) => (
                   <tr key={dev.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{dev.deviationNo}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{dev.deviationNo}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{formatDate(dev.date)}</td>
                     <td className="px-3 py-2.5 font-mono text-xs text-gray-600">{dev.batchRef ?? '—'}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-500">{dev.deviationType}</td>
@@ -375,7 +375,7 @@ export default function QAPage() {
                       <div className="truncate" title={dev.description}>{dev.description}</div>
                     </td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{dev.reportedBy}</td>
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff]">{dev.capaLinked ?? '—'}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847]">{dev.capaLinked ?? '—'}</td>
                     <td className="px-3 py-2.5">
                       <Badge variant={dev.status === 'Closed' ? 'ok' : dev.status === 'Open' ? 'warn' : 'blue'}>
                         {dev.status}

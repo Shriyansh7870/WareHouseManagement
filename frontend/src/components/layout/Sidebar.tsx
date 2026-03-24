@@ -16,7 +16,7 @@ const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: 
 };
 
 const BADGE_COLORS: Record<string, string> = {
-  purple: 'bg-[rgba(108,99,255,0.18)] text-[#6c63ff] border border-[rgba(108,99,255,0.3)]',
+  purple: 'bg-[rgba(212,168,71,0.18)] text-[#D4A847] border border-[rgba(212,168,71,0.3)]',
   orange: 'bg-[rgba(249,115,22,0.15)] text-[#f97316] border border-[rgba(249,115,22,0.3)]',
   red: 'bg-[rgba(239,68,68,0.15)] text-[#ef4444] border border-[rgba(239,68,68,0.3)]',
 };
@@ -42,20 +42,17 @@ export default function Sidebar() {
   const NavContent = ({ collapsed }: { collapsed: boolean }) => (
     <>
       {/* Brand Header */}
-      <div className="flex items-center gap-2.5 px-4 py-4 border-b border-white/5">
+      <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: '1px solid rgba(212,168,71,0.1)' }}>
         <img
           src="/golden_blue_logo.png"
           alt="Logo"
-          className="w-8 h-8 rounded-lg flex-shrink-0 object-contain"
+          className="w-12 h-12 rounded-lg flex-shrink-0 object-contain bg-white/90 p-0.5"
         />
         {!collapsed && (
           <div className="min-w-0 flex-1">
-            <div className="font-display font-700 text-sm leading-tight">
+            <div className="font-display font-700 text-base leading-tight">
               <span className="text-white">Quantum</span>{' '}
-              <span style={{ color: 'var(--accent-purple)' }}>Invenza</span>
-            </div>
-            <div className="text-[9px] text-white/30 uppercase tracking-wider truncate">
-              PharmaTech Mfg. Pvt. Ltd.
+              <span style={{ color: 'var(--accent-gold)' }}>Invenza</span>
             </div>
           </div>
         )}
@@ -102,7 +99,7 @@ export default function Sidebar() {
                       {Icon && (
                         <Icon
                           size={16}
-                          className={isActive ? 'text-[#6c63ff]' : 'text-white/40 group-hover:text-white/60'}
+                          className={isActive ? 'text-[#D4A847]' : 'text-white/40 group-hover:text-white/60'}
                         />
                       )}
                       {!collapsed && (
@@ -126,11 +123,11 @@ export default function Sidebar() {
 
       {/* Footer */}
       {!collapsed && (
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4" style={{ borderTop: '1px solid rgba(212,168,71,0.1)' }}>
           <div className="flex items-center gap-2.5">
             <div
               className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: 'linear-gradient(135deg, #6c63ff, #f97316)' }}
+              style={{ background: 'linear-gradient(135deg, #D4A847, #f97316)' }}
             >
               {initials}
             </div>
@@ -157,15 +154,15 @@ export default function Sidebar() {
       <aside
         className="fixed left-0 top-0 h-screen flex-col transition-all duration-300 z-40 hidden lg:flex"
         style={{
-          width: sidebarCollapsed ? '64px' : '228px',
-          background: 'var(--sidebar-bg)',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
+          width: sidebarCollapsed ? '64px' : '264px',
+          background: 'linear-gradient(180deg, #112D4E 0%, #0A1F38 100%)',
+          borderRight: '1px solid rgba(212,168,71,0.12)',
         }}
       >
         {/* Collapse Toggle */}
         <button
           onClick={toggleSidebar}
-          className="absolute -right-3 top-14 w-6 h-6 rounded-full flex items-center justify-center border border-white/10 bg-[#1a1a2e] text-white/50 hover:text-white z-50"
+          className="absolute -right-3 top-14 w-6 h-6 rounded-full flex items-center justify-center border border-[rgba(212,168,71,0.2)] bg-[#0A1628] text-[#D4A847]/60 hover:text-[#D4A847] z-50"
         >
           {sidebarCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
         </button>
@@ -184,10 +181,10 @@ export default function Sidebar() {
       <aside
         className="fixed left-0 top-0 h-screen flex flex-col z-50 transition-transform duration-300 lg:hidden"
         style={{
-          width: '228px',
-          background: 'var(--sidebar-bg)',
-          borderRight: '1px solid rgba(255,255,255,0.06)',
-          transform: mobileSidebarOpen ? 'translateX(0)' : 'translateX(-228px)',
+          width: '264px',
+          background: 'linear-gradient(180deg, #112D4E 0%, #0A1F38 100%)',
+          borderRight: '1px solid rgba(212,168,71,0.12)',
+          transform: mobileSidebarOpen ? 'translateX(0)' : 'translateX(-264px)',
         }}
       >
         <NavContent collapsed={false} />

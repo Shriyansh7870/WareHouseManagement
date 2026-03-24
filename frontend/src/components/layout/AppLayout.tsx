@@ -64,7 +64,7 @@ export default function AppLayout() {
     return () => document.removeEventListener('keydown', handler);
   }, []);
 
-  const sidebarOffset = sidebarCollapsed ? '64px' : '228px';
+  const sidebarOffset = sidebarCollapsed ? '64px' : '264px';
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg)' }}>

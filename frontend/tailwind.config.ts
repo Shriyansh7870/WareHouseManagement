@@ -10,8 +10,8 @@ const config: Config = {
         display: ['Manrope', 'sans-serif'],
       },
       colors: {
-        sidebar: '#1a1a2e',
-        'accent-purple': '#6c63ff',
+        sidebar: '#0D1B2A',
+        'accent-gold': '#D4A847',
         'accent-orange': '#f97316',
         'accent-green': '#22c55e',
         'accent-blue': '#3b82f6',

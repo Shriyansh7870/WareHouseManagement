@@ -26,7 +26,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 const Loader = () => (
   <div className="flex items-center justify-center h-64">
-    <div className="w-8 h-8 border-2 border-[#6c63ff] border-t-transparent rounded-full animate-spin" />
+    <div className="w-8 h-8 border-2 border-[#D4A847] border-t-transparent rounded-full animate-spin" />
   </div>
 );
 

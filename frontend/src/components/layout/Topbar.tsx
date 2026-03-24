@@ -68,7 +68,7 @@ export default function Topbar() {
         height: '60px',
         borderBottom: '1px solid var(--border)',
         transition: 'margin-left 0.3s',
-        ['--sidebar-offset' as string]: sidebarCollapsed ? '64px' : '228px',
+        ['--sidebar-offset' as string]: sidebarCollapsed ? '64px' : '264px',
       } as React.CSSProperties}
     >
       <div className="flex items-center gap-3">

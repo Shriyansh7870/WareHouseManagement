@@ -72,7 +72,7 @@ export default function ReturnsPage() {
             <tbody className="divide-y divide-gray-50">
               {MOCK_RETURNS.map((ret) => (
                 <tr key={ret.id} className="hover:bg-gray-50/50 transition-colors">
-                  <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{ret.rmaNumber}</td>
+                  <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{ret.rmaNumber}</td>
                   <td className="px-3 py-2.5 text-xs text-gray-600">{formatDate(ret.returnDate)}</td>
                   <td className="px-3 py-2.5 text-sm text-gray-700">{ret.customerName}</td>
                   <td className="px-3 py-2.5 font-mono text-xs text-gray-600">{ret.doReference}</td>

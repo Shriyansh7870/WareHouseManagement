@@ -18,7 +18,7 @@ const AUDIT_KPIS = [
 
 const MODULE_COLORS: Record<AuditModule, string> = {
   AUTH: '#9ca3af',
-  INVENTORY: '#6c63ff',
+  INVENTORY: '#D4A847',
   GRN: '#3b82f6',
   QA: '#22c55e',
   COLD_CHAIN: '#14b8a6',
@@ -92,7 +92,7 @@ export default function AuditTrailPage() {
         <select
           value={moduleFilter}
           onChange={(e) => { setModuleFilter(e.target.value as AuditModule | ''); setPage(0); }}
-          className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30"
+          className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30"
         >
           <option value="">All Modules</option>
           {ALL_MODULES.map((m) => <option key={m} value={m}>{m.replace('_', ' ')}</option>)}
@@ -100,11 +100,11 @@ export default function AuditTrailPage() {
         <div className="flex items-center gap-1.5">
           <span className="text-xs text-gray-400">From</span>
           <input type="date" value={dateFrom} onChange={e => { setDateFrom(e.target.value); setPage(0); }}
-            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#6c63ff]/40"
+            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#D4A847]/40"
           />
           <span className="text-xs text-gray-400">To</span>
           <input type="date" value={dateTo} onChange={e => { setDateTo(e.target.value); setPage(0); }}
-            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#6c63ff]/40"
+            className="px-2 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#D4A847]/40"
           />
         </div>
         {(dateFrom || dateTo || moduleFilter) && (
@@ -172,7 +172,7 @@ export default function AuditTrailPage() {
             <div className="flex gap-1">
               <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="px-3 py-1 text-xs border border-gray-200 rounded disabled:opacity-40 hover:bg-gray-50">Prev</button>
               {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
-                <button key={i} onClick={() => setPage(i)} className={`px-3 py-1 text-xs border rounded ${page === i ? 'border-[#6c63ff] text-[#6c63ff] bg-purple-50' : 'border-gray-200 hover:bg-gray-50'}`}>{i + 1}</button>
+                <button key={i} onClick={() => setPage(i)} className={`px-3 py-1 text-xs border rounded ${page === i ? 'border-[#D4A847] text-[#D4A847] bg-purple-50' : 'border-gray-200 hover:bg-gray-50'}`}>{i + 1}</button>
               ))}
               <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="px-3 py-1 text-xs border border-gray-200 rounded disabled:opacity-40 hover:bg-gray-50">Next</button>
             </div>

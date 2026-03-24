@@ -89,7 +89,7 @@ export default function GlobalSearch() {
   if (!open) return (
     <button
       onClick={() => setOpen(true)}
-      className="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 border border-gray-200 rounded-lg hover:border-[#6c63ff] hover:text-[#6c63ff] transition-colors bg-white"
+      className="flex items-center gap-2 px-3 py-1.5 text-xs text-gray-400 border border-gray-200 rounded-lg hover:border-[#D4A847] hover:text-[#D4A847] transition-colors bg-white"
     >
       <Search size={12} />
       <span>Search…</span>
@@ -148,7 +148,7 @@ export default function GlobalSearch() {
                 { label: 'Cold Chain', icon: <Thermometer size={13} />, link: '/cold-chain' },
               ].map(item => (
                 <button key={item.label} onClick={() => { navigate(item.link); setOpen(false); }}
-                  className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-100 hover:border-[#6c63ff] hover:bg-purple-50/30 transition-colors text-sm text-gray-600">
+                  className="flex items-center gap-2 p-2.5 rounded-lg border border-gray-100 hover:border-[#D4A847] hover:bg-purple-50/30 transition-colors text-sm text-gray-600">
                   {item.icon} {item.label}
                 </button>
               ))}

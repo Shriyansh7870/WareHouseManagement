@@ -13,7 +13,7 @@ interface KpiCardProps {
 }
 
 const ACCENT_VARS: Record<AccentColor, string> = {
-  purple: 'var(--accent-purple)',
+  purple: 'var(--accent-gold)',
   orange: 'var(--accent-orange)',
   green: 'var(--accent-green)',
   blue: 'var(--accent-blue)',

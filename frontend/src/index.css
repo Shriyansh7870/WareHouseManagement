@@ -5,12 +5,12 @@
 @tailwind utilities;
 
 :root {
-  --sidebar-bg: #1a1a2e;
+  --sidebar-bg: #0D1B2A;
   --sidebar-hover: rgba(255,255,255,0.07);
-  --sidebar-active: rgba(108,99,255,0.18);
-  --sidebar-active-bar: #6c63ff;
-  --accent-purple: #6c63ff;
-  --accent-purple-light: rgba(108,99,255,0.12);
+  --sidebar-active: rgba(212,168,71,0.18);
+  --sidebar-active-bar: #D4A847;
+  --accent-gold: #D4A847;
+  --accent-gold-light: rgba(212,168,71,0.12);
   --accent-orange: #f97316;
   --accent-orange-light: rgba(249,115,22,0.12);
   --accent-green: #22c55e;
@@ -34,11 +34,11 @@
 }
 
 .dark {
-  --bg: #0f0f1a;
-  --surface: #1a1a2e;
-  --surface2: #16213e;
-  --border: #2d2d4e;
-  --border2: #3d3d5e;
+  --bg: #071018;
+  --surface: #0D1B2A;
+  --surface2: #132840;
+  --border: #1E3A5F;
+  --border2: #2A4A6E;
   --text: #f1f5f9;
   --text2: #cbd5e1;
   --text3: #94a3b8;
@@ -64,7 +64,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
   transition: margin-left 0.3s;
 }
 @media (min-width: 1024px) {
-  .sidebar-offset { margin-left: var(--sidebar-offset, 228px); }
+  .sidebar-offset { margin-left: var(--sidebar-offset, 264px); }
 }
 
 /* Mobile responsive table cards */

@@ -12,7 +12,7 @@ interface ReportCard {
 }
 
 const REPORTS: ReportCard[] = [
-  { icon: <Package size={20} />, title: 'Inventory Ledger Report', desc: 'Full inventory status with FEFO order, expiry flags, and QA status', color: '#6c63ff' },
+  { icon: <Package size={20} />, title: 'Inventory Ledger Report', desc: 'Full inventory status with FEFO order, expiry flags, and QA status', color: '#D4A847' },
   { icon: <Truck size={20} />, title: 'GRN Register', desc: 'All goods receipts with QA decisions and CoA linkage', color: '#3b82f6' },
   { icon: <Truck size={20} />, title: 'Dispatch Summary', desc: 'Dispatch orders, OTD performance, and customer-wise breakdown', color: '#22c55e' },
   { icon: <Clock size={20} />, title: 'Expiry & FEFO Report', desc: 'Expiry buckets, at-risk batches, and waste prevention metrics', color: '#ef4444' },
@@ -38,7 +38,7 @@ function ScheduleModal({ title, onClose }: { title: string; onClose: () => void 
       <div className="space-y-4 text-sm">
         <div>
           <label className="block text-xs text-gray-500 mb-1">Format <span className="text-red-500">*</span></label>
-          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30">
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
             <option>PDF</option>
             <option>CSV</option>
             <option>Both (PDF + CSV)</option>
@@ -46,7 +46,7 @@ function ScheduleModal({ title, onClose }: { title: string; onClose: () => void 
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Frequency <span className="text-red-500">*</span></label>
-          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30">
+          <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
             <option>Daily</option>
             <option>Weekly (Monday)</option>
             <option>Monthly (1st)</option>
@@ -54,14 +54,14 @@ function ScheduleModal({ title, onClose }: { title: string; onClose: () => void 
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Delivery Time</label>
-          <input type="time" defaultValue="08:00" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30" />
+          <input type="time" defaultValue="08:00" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1">Email Recipients <span className="text-red-500">*</span></label>
           <textarea
             rows={2}
             placeholder="email1@pharmatech.in, email2@pharmatech.in"
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#6c63ff]/30 resize-none"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none"
           />
           <p className="text-[10px] text-gray-400 mt-1">Separate multiple emails with commas</p>
         </div>

@@ -86,7 +86,7 @@ export default function CycleCountPage() {
                         {expanded === cc.id ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                       </button>
                     </td>
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{cc.countId}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{cc.countId}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{cc.type}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{formatDate(cc.date)}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{cc.zone}</td>

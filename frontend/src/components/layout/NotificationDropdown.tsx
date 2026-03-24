@@ -52,12 +52,12 @@ export default function NotificationDropdown({ open, onClose }: Props) {
           <Bell size={14} className="text-gray-600" />
           <span className="font-semibold text-sm text-gray-800">Notifications</span>
           {unreadCount > 0 && (
-            <span className="text-[10px] bg-[#6c63ff] text-white px-1.5 py-0.5 rounded-full font-bold">{unreadCount}</span>
+            <span className="text-[10px] bg-[#D4A847] text-white px-1.5 py-0.5 rounded-full font-bold">{unreadCount}</span>
           )}
         </div>
         <div className="flex gap-2">
           {unreadCount > 0 && (
-            <button onClick={markAllRead} className="text-xs text-[#6c63ff] hover:underline flex items-center gap-1">
+            <button onClick={markAllRead} className="text-xs text-[#D4A847] hover:underline flex items-center gap-1">
               <Check size={11} /> Mark all read
             </button>
           )}
@@ -83,7 +83,7 @@ export default function NotificationDropdown({ open, onClose }: Props) {
                 <div className="flex items-center gap-1.5">
                   <span className="text-xs font-semibold text-gray-800">{n.title}</span>
                   <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${SEVERITY_DOT[n.severity]}`} />
-                  {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-[#6c63ff] flex-shrink-0 ml-auto" />}
+                  {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-[#D4A847] flex-shrink-0 ml-auto" />}
                 </div>
                 <p className="text-[11px] text-gray-500 mt-0.5 leading-snug">{n.message}</p>
                 <p className="text-[10px] text-gray-400 mt-1">{formatDateTime(n.createdAt)}</p>

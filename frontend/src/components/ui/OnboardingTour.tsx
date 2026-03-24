@@ -12,7 +12,7 @@ const STEPS: TourStep[] = [
   {
     title: 'Welcome to Quantum Invenza',
     description: 'PharmaTech Manufacturing Pvt. Ltd.\'s GMP-compliant Warehouse Management System. This quick tour will walk you through the key modules.',
-    icon: <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-2xl" style={{ background: 'linear-gradient(135deg, #6c63ff, #a78bfa)' }}>QI</div>,
+    icon: <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-2xl" style={{ background: 'linear-gradient(135deg, #D4A847, #E8B94A)' }}>QI</div>,
     tip: 'You can skip this tour and come back from the Settings page anytime.',
   },
   {
@@ -103,7 +103,7 @@ export default function OnboardingTour({ onDismiss }: OnboardingTourProps) {
       {/* Card */}
       <div
         className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
-        style={{ boxShadow: '0 25px 60px rgba(108,99,255,0.2)' }}
+        style={{ boxShadow: '0 25px 60px rgba(212,168,71,0.2)' }}
       >
         {/* Progress bar */}
         <div className="h-1 bg-gray-100 w-full">
@@ -111,7 +111,7 @@ export default function OnboardingTour({ onDismiss }: OnboardingTourProps) {
             className="h-full transition-all duration-500"
             style={{
               width: `${((step + 1) / STEPS.length) * 100}%`,
-              background: 'linear-gradient(90deg, #6c63ff, #a78bfa)',
+              background: 'linear-gradient(90deg, #D4A847, #E8B94A)',
             }}
           />
         </div>
@@ -177,7 +177,7 @@ export default function OnboardingTour({ onDismiss }: OnboardingTourProps) {
           <button
             onClick={isLast ? handleDone : () => setStep((s) => s + 1)}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #6c63ff, #a78bfa)' }}
+            style={{ background: 'linear-gradient(135deg, #D4A847, #E8B94A)' }}
           >
             {isLast ? (
               <>

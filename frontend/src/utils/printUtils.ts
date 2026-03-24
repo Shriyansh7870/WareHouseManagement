@@ -40,8 +40,8 @@ export function printTable({
     * { box-sizing: border-box; margin: 0; padding: 0; }
     @page { size: A4 ${orientation}; margin: 12mm 10mm; }
     body { font-family: Arial, sans-serif; font-size: 11px; color: #111; }
-    .gmp-header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 2px solid #6c63ff; padding-bottom: 8px; margin-bottom: 10px; }
-    .gmp-header .logo { font-size: 16px; font-weight: 900; color: #6c63ff; letter-spacing: -0.5px; }
+    .gmp-header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 2px solid #D4A847; padding-bottom: 8px; margin-bottom: 10px; }
+    .gmp-header .logo { font-size: 16px; font-weight: 900; color: #D4A847; letter-spacing: -0.5px; }
     .gmp-header .company { font-size: 9px; color: #6b7280; margin-top: 2px; }
     .gmp-header .meta { text-align: right; font-size: 9px; color: #6b7280; }
     .doc-title { font-size: 13px; font-weight: 700; color: #111827; margin-bottom: 2px; }

@@ -47,7 +47,7 @@ function VendorDetailModal({ vendor, onClose }: { vendor: Vendor; onClose: () =>
             <div className="space-y-2.5">
               {[
                 { label: 'On-time Delivery', value: scorecard.onTime, color: '#22c55e' },
-                { label: 'QA Pass Rate', value: scorecard.qaPass, color: '#6c63ff' },
+                { label: 'QA Pass Rate', value: scorecard.qaPass, color: '#D4A847' },
                 { label: 'CoA Accuracy', value: scorecard.coaAccuracy, color: '#3b82f6' },
               ].map((item) => (
                 <div key={item.label}>
@@ -198,7 +198,7 @@ export default function VendorsPage() {
               <tbody className="divide-y divide-gray-50">
                 {filteredVendors.map((v) => (
                   <tr key={v.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{v.vendorCode}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{v.vendorCode}</td>
                     <td className="px-3 py-2.5 text-sm font-medium text-gray-800">{v.companyName}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-500">{v.category.replace(/_/g, ' ')}</td>
                     <td className="px-3 py-2.5 font-mono text-xs text-gray-500">{v.drugLicenseNo ?? '—'}</td>
@@ -254,7 +254,7 @@ export default function VendorsPage() {
                 </div>
                 <div>
                   <div className="flex justify-between text-xs text-gray-500 mb-1"><span>QA Pass Rate</span></div>
-                  <ProgressBar value={sc.qaPass} color="#6c63ff" />
+                  <ProgressBar value={sc.qaPass} color="#D4A847" />
                 </div>
                 <div>
                   <div className="flex justify-between text-xs text-gray-500 mb-1"><span>CoA Accuracy</span></div>
@@ -281,7 +281,7 @@ export default function VendorsPage() {
               <tbody className="divide-y divide-gray-50">
                 {MOCK_ASNS.map((asn) => (
                   <tr key={asn.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{asn.asnNumber}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{asn.asnNumber}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{asn.vendorName}</td>
                     <td className="px-3 py-2.5 font-mono text-xs text-gray-600">{asn.poReference ?? '—'}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{asn.itemName ?? '—'}</td>
@@ -314,7 +314,7 @@ export default function VendorsPage() {
               <tbody className="divide-y divide-gray-50">
                 {MOCK_AUDITS.map((audit) => (
                   <tr key={audit.id} className="hover:bg-gray-50/50 transition-colors">
-                    <td className="px-3 py-2.5 font-mono text-xs text-[#6c63ff] font-semibold">{audit.auditId}</td>
+                    <td className="px-3 py-2.5 font-mono text-xs text-[#D4A847] font-semibold">{audit.auditId}</td>
                     <td className="px-3 py-2.5 text-sm text-gray-700">{audit.vendor}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-600">{formatDate(audit.date)}</td>
                     <td className="px-3 py-2.5 text-xs text-gray-500">{audit.type}</td>
