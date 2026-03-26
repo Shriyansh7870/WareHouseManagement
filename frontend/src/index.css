@@ -64,7 +64,7 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
   transition: margin-left 0.3s;
 }
 @media (min-width: 1024px) {
-  .sidebar-offset { margin-left: var(--sidebar-offset, 264px); }
+  .sidebar-offset { margin-left: var(--sidebar-offset, 300px); }
 }
 
 /* Mobile responsive table cards */

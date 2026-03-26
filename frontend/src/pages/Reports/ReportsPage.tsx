@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Download, Calendar, Package, Truck, Clock, CheckCircle, Thermometer, Factory, Search, FileText } from 'lucide-react';
+import { Download, Calendar, Package, Truck, Clock, CheckCircle, Thermometer, Factory, Search, FileText, Eye, X, Printer } from 'lucide-react';
 import toast from 'react-hot-toast';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import Badge from '../../components/ui/Badge';
 import { useDataStore } from '../../store/dataStore';
 import { exportToCSV } from '../../utils/csvExport';
-import { printTable } from '../../utils/printUtils';
 import { formatDate, daysToExpiry } from '../../utils/formatters';
 
 const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 transition-colors';
@@ -18,131 +17,274 @@ interface ReportDef {
   title: string;
   desc: string;
   color: string;
-  module: string;
 }
 
 const REPORTS: ReportDef[] = [
-  { id: 'inventory', icon: <Package size={20} />, title: 'Inventory Ledger Report', desc: 'Full inventory status with FEFO order, expiry flags, and QA status', color: '#D4A847', module: 'Inventory' },
-  { id: 'grn', icon: <Truck size={20} />, title: 'GRN Register', desc: 'All goods receipts with QA decisions and CoA linkage', color: '#3b82f6', module: 'GRN' },
-  { id: 'dispatch', icon: <Truck size={20} />, title: 'Dispatch Summary', desc: 'Dispatch orders, OTD performance, and customer-wise breakdown', color: '#22c55e', module: 'Dispatch' },
-  { id: 'expiry', icon: <Clock size={20} />, title: 'Expiry & FEFO Report', desc: 'Expiry buckets, at-risk batches, and waste prevention metrics', color: '#ef4444', module: 'Inventory' },
-  { id: 'qa', icon: <CheckCircle size={20} />, title: 'QA & CAPA Report', desc: 'QA inspection results, CAPA status, and deviation log', color: '#f97316', module: 'QA' },
-  { id: 'coldchain', icon: <Thermometer size={20} />, title: 'Cold Chain Log', desc: 'Temperature records, excursion events, and uptime analysis', color: '#14b8a6', module: 'Cold Chain' },
-  { id: 'vendor', icon: <Factory size={20} />, title: 'Vendor Scorecard', desc: 'Vendor performance ratings, audit results, and GRN analytics', color: '#8b5cf6', module: 'Vendor' },
-  { id: 'audit', icon: <Search size={20} />, title: 'Audit Trail Export', desc: 'Complete immutable audit log with user, action, and timestamp', color: '#9ca3af', module: 'Audit' },
+  { id: 'inventory', icon: <Package size={20} />, title: 'Inventory Ledger Report', desc: 'Full inventory status with FEFO order, expiry flags, and QA status', color: '#D4A847' },
+  { id: 'grn', icon: <Truck size={20} />, title: 'GRN Register', desc: 'All goods receipts with QA decisions and CoA linkage', color: '#3b82f6' },
+  { id: 'dispatch', icon: <Truck size={20} />, title: 'Dispatch Summary', desc: 'Dispatch orders, OTD performance, and customer-wise breakdown', color: '#22c55e' },
+  { id: 'expiry', icon: <Clock size={20} />, title: 'Expiry & FEFO Report', desc: 'Expiry buckets, at-risk batches, and waste prevention metrics', color: '#ef4444' },
+  { id: 'qa', icon: <CheckCircle size={20} />, title: 'QA & CAPA Report', desc: 'QA inspection results, CAPA status, and deviation log', color: '#f97316' },
+  { id: 'coldchain', icon: <Thermometer size={20} />, title: 'Cold Chain Log', desc: 'Temperature records, excursion events, and uptime analysis', color: '#14b8a6' },
+  { id: 'vendor', icon: <Factory size={20} />, title: 'Vendor Scorecard', desc: 'Vendor performance ratings, audit results, and GRN analytics', color: '#8b5cf6' },
+  { id: 'audit', icon: <Search size={20} />, title: 'Audit Trail Export', desc: 'Complete immutable audit log with user, action, and timestamp', color: '#9ca3af' },
 ];
 
-/* ─── Generate report data as CSV ─── */
-function useReportGenerator() {
-  const { inventory, grns, deliveryOrders, qaInspections, capas, returns } = useDataStore();
+/* ─── Build report data ─── */
+function useReportData() {
+  const { inventory, grns, deliveryOrders, qaInspections, capas } = useDataStore();
 
-  const generate = (reportId: string) => {
+  const getReportData = (reportId: string): { headers: string[]; rows: (string | number)[][] } => {
     switch (reportId) {
       case 'inventory':
-        exportToCSV(inventory.map((i) => ({
-          'Item Code': i.itemCode, 'Item Name': i.itemName, 'Category': i.category,
-          'Batch No': i.batchNumber, 'Mfg Date': i.mfgDate, 'Expiry Date': i.expiryDate,
-          'Days to Expiry': daysToExpiry(i.expiryDate), 'Qty on Hand': i.qtyOnHand,
-          'Unit': i.unit, 'Location': i.storageLocation, 'Site': i.siteCode, 'QA Status': i.qaStatus,
-        })), 'inventory-ledger-report');
-        break;
+        return {
+          headers: ['Item Code', 'Item Name', 'Category', 'Batch No', 'Mfg Date', 'Expiry Date', 'Days Left', 'Qty', 'Unit', 'Location', 'Site', 'QA Status'],
+          rows: inventory.map((i) => [i.itemCode, i.itemName, i.category, i.batchNumber, i.mfgDate, i.expiryDate, daysToExpiry(i.expiryDate), i.qtyOnHand, i.unit, i.storageLocation, i.siteCode, i.qaStatus]),
+        };
       case 'grn':
-        exportToCSV(grns.map((g) => ({
-          'GRN No': g.grnNumber, 'Date': formatDate(g.createdAt), 'Supplier': g.vendorName ?? '',
-          'Item': g.itemName, 'Code': g.itemCode, 'Batch': g.batchNumber,
-          'Qty': g.qtyReceived, 'Unit': g.unit, 'Mfg Date': g.mfgDate,
-          'Expiry': g.expiryDate, 'Location': g.storageLocation, 'Status': g.status,
-          'CoA': g.coaLinked ? 'Yes' : 'No',
-        })), 'grn-register-report');
-        break;
+        return {
+          headers: ['GRN No', 'Date', 'Supplier', 'Item', 'Code', 'Batch', 'Qty', 'Unit', 'Mfg Date', 'Expiry', 'Location', 'Status', 'CoA'],
+          rows: grns.map((g) => [g.grnNumber, formatDate(g.createdAt), g.vendorName ?? '', g.itemName, g.itemCode, g.batchNumber, g.qtyReceived, g.unit, g.mfgDate, g.expiryDate, g.storageLocation, g.status, g.coaLinked ? 'Yes' : 'No']),
+        };
       case 'dispatch':
-        exportToCSV(deliveryOrders.map((d) => ({
-          'DO No': d.doNumber, 'Date': d.orderDate, 'Customer': d.customerName,
-          'Items': d.items, 'Qty': d.qty, 'Carrier': d.carrier ?? '',
-          'Tracking': d.trackingNo ?? '', 'Priority': d.priority ?? 'NORMAL',
-          'Pick Status': d.pickStatus, 'DO Status': d.doStatus,
-          'Expected': d.expectedDelivery ?? '', 'Dispatched': d.dispatchDate ?? '',
-        })), 'dispatch-summary-report');
-        break;
+        return {
+          headers: ['DO No', 'Date', 'Customer', 'Items', 'Qty', 'Carrier', 'Tracking', 'Priority', 'Pick Status', 'DO Status', 'Expected', 'Dispatched'],
+          rows: deliveryOrders.map((d) => [d.doNumber, d.orderDate, d.customerName, d.items, d.qty, d.carrier ?? '', d.trackingNo ?? '', d.priority ?? 'NORMAL', d.pickStatus, d.doStatus, d.expectedDelivery ?? '', d.dispatchDate ?? '']),
+        };
       case 'expiry':
-        exportToCSV(
-          inventory
+        return {
+          headers: ['Item Code', 'Item Name', 'Batch', 'Expiry Date', 'Days Left', 'Risk Level', 'Qty', 'Unit', 'Location'],
+          rows: inventory
             .map((i) => ({ ...i, _days: daysToExpiry(i.expiryDate) }))
             .sort((a, b) => a._days - b._days)
-            .map((i) => ({
-              'Item Code': i.itemCode, 'Item Name': i.itemName, 'Batch': i.batchNumber,
-              'Expiry Date': i.expiryDate, 'Days Left': i._days,
-              'Risk Level': i._days <= 30 ? 'CRITICAL' : i._days <= 60 ? 'WARNING' : 'OK',
-              'Qty': i.qtyOnHand, 'Unit': i.unit, 'Location': i.storageLocation,
-            })),
-          'expiry-fefo-report'
-        );
-        break;
+            .map((i) => [i.itemCode, i.itemName, i.batchNumber, i.expiryDate, i._days, i._days <= 30 ? 'CRITICAL' : i._days <= 60 ? 'WARNING' : 'OK', i.qtyOnHand, i.unit, i.storageLocation]),
+        };
       case 'qa':
-        exportToCSV([
-          ...qaInspections.map((q) => ({
-            'Type': 'Inspection', 'ID': q.inspectionId, 'Item': q.itemName,
-            'Batch': q.batchNumber, 'Supplier': q.supplier, 'Result': q.result,
-            'Decision': q.decision, 'TAT (hrs)': q.tatHours ?? '',
-          })),
-          ...capas.map((c) => ({
-            'Type': 'CAPA', 'ID': c.capaNumber, 'Item': c.description.slice(0, 50),
-            'Batch': c.batchRef ?? '', 'Supplier': '', 'Result': c.status,
-            'Decision': c.priority, 'TAT (hrs)': '',
-          })),
-        ], 'qa-capa-report');
-        break;
+        return {
+          headers: ['Type', 'ID', 'Item', 'Batch', 'Supplier', 'Result', 'Decision', 'TAT (hrs)'],
+          rows: [
+            ...qaInspections.map((q) => ['Inspection', q.inspectionId, q.itemName, q.batchNumber, q.supplier, q.result, q.decision, q.tatHours ?? ''] as (string | number)[]),
+            ...capas.map((c) => ['CAPA', c.capaNumber, c.description.slice(0, 50), c.batchRef ?? '', '', c.status, c.priority, ''] as (string | number)[]),
+          ],
+        };
       case 'vendor':
-        exportToCSV(grns.reduce((acc, g) => {
-          const key = g.vendorName ?? 'Unknown';
-          if (!acc.find((a) => a.Vendor === key)) {
-            const vendorGrns = grns.filter((gg) => gg.vendorName === key);
-            acc.push({
-              'Vendor': key, 'Total GRNs': vendorGrns.length,
-              'Approved': vendorGrns.filter((gg) => gg.status === 'APPROVED').length,
-              'Rejected': vendorGrns.filter((gg) => gg.status === 'REJECTED').length,
-              'Pending QA': vendorGrns.filter((gg) => gg.status === 'PENDING_QA').length,
-              'CoA Linked': vendorGrns.filter((gg) => gg.coaLinked).length,
+        return {
+          headers: ['Vendor', 'Total GRNs', 'Approved', 'Rejected', 'Pending QA', 'CoA Linked'],
+          rows: (() => {
+            const map = new Map<string, { total: number; approved: number; rejected: number; pending: number; coa: number }>();
+            grns.forEach((g) => {
+              const key = g.vendorName ?? 'Unknown';
+              const cur = map.get(key) ?? { total: 0, approved: 0, rejected: 0, pending: 0, coa: 0 };
+              cur.total++;
+              if (g.status === 'APPROVED') cur.approved++;
+              if (g.status === 'REJECTED') cur.rejected++;
+              if (g.status === 'PENDING_QA') cur.pending++;
+              if (g.coaLinked) cur.coa++;
+              map.set(key, cur);
             });
-          }
-          return acc;
-        }, [] as Record<string, string | number>[]), 'vendor-scorecard-report');
-        break;
+            return Array.from(map.entries()).map(([k, v]) => [k, v.total, v.approved, v.rejected, v.pending, v.coa]);
+          })(),
+        };
       default:
-        exportToCSV([{ 'Note': `${reportId} report — sample data` }], `${reportId}-report`);
+        return { headers: ['Info'], rows: [['Report data not available']] };
     }
-    toast.success('Report downloaded as CSV');
   };
 
-  const preview = (reportId: string) => {
-    const report = REPORTS.find((r) => r.id === reportId);
-    if (!report) return;
+  return { getReportData };
+}
 
-    let headers: string[] = [];
-    let rows: (string | number)[][] = [];
+/* ─── Generate A4 HTML string ─── */
+function buildA4Html(title: string, headers: string[], rows: (string | number)[][], orientation: 'portrait' | 'landscape' = 'landscape') {
+  const now = new Date();
+  const dateStr = now.toLocaleString('en-IN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
 
-    switch (reportId) {
-      case 'inventory':
-        headers = ['Item Code', 'Item', 'Batch', 'Expiry', 'Days Left', 'Qty', 'Location', 'QA Status'];
-        rows = inventory.slice(0, 10).map((i) => [i.itemCode, i.itemName, i.batchNumber, i.expiryDate, daysToExpiry(i.expiryDate), i.qtyOnHand, i.storageLocation, i.qaStatus]);
-        break;
-      case 'grn':
-        headers = ['GRN No', 'Date', 'Supplier', 'Item', 'Batch', 'Qty', 'Status', 'CoA'];
-        rows = grns.slice(0, 10).map((g) => [g.grnNumber, formatDate(g.createdAt), g.vendorName ?? '', g.itemName, g.batchNumber, g.qtyReceived, g.status, g.coaLinked ? 'Yes' : 'No']);
-        break;
-      case 'dispatch':
-        headers = ['DO No', 'Customer', 'Items', 'Qty', 'Carrier', 'Status'];
-        rows = deliveryOrders.slice(0, 10).map((d) => [d.doNumber, d.customerName, d.items, d.qty, d.carrier ?? '—', d.doStatus]);
-        break;
-      default:
-        headers = ['Info'];
-        rows = [['Preview not available — download the full report']];
-    }
+  const tableRows = rows.map((row) => `<tr>${row.map((cell) => `<td>${cell ?? '—'}</td>`).join('')}</tr>`).join('');
 
-    printTable({ title: report.title, subtitle: `Generated ${new Date().toLocaleString()} — Preview (first 10 rows)`, headers, rows, orientation: 'landscape' });
-  };
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>${title} — Quantum Invenza</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    @page { size: A4 ${orientation}; margin: 15mm 12mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #111; padding: 0; }
+    .header { display: flex; align-items: flex-start; justify-content: space-between; border-bottom: 2.5px solid #D4A847; padding-bottom: 10px; margin-bottom: 14px; }
+    .header .brand { font-size: 18px; font-weight: 900; color: #D4A847; }
+    .header .company { font-size: 9px; color: #6b7280; margin-top: 2px; }
+    .header .meta { text-align: right; font-size: 9px; color: #6b7280; line-height: 1.6; }
+    .title { font-size: 14px; font-weight: 700; color: #111827; margin-bottom: 3px; }
+    .subtitle { font-size: 10px; color: #6b7280; margin-bottom: 12px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; page-break-inside: auto; }
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+    th { background: #f8f6f0; color: #1f1635; font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 6px 5px; border: 1px solid #d4d0c8; text-align: left; white-space: nowrap; }
+    td { padding: 5px 5px; border: 1px solid #e5e7eb; font-size: 9.5px; color: #374151; vertical-align: top; }
+    tr:nth-child(even) td { background: #fafaf8; }
+    .footer { margin-top: 20px; display: flex; justify-content: space-between; align-items: flex-end; }
+    .footer .total { font-size: 9px; color: #6b7280; }
+    .signs { display: flex; gap: 60px; margin-top: 30px; }
+    .signs .sign-box { text-align: center; }
+    .signs .sign-line { width: 120px; border-top: 1px solid #374151; padding-top: 4px; font-size: 8px; color: #6b7280; }
+    .page-footer { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-between; font-size: 7.5px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding: 4px 12mm; }
+    @media print { .no-print { display: none !important; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="brand">Quantum Invenza</div>
+      <div class="company">Forge Quantum Solution | GMP Controlled Document</div>
+    </div>
+    <div class="meta">
+      <div><strong>Document:</strong> ${title}</div>
+      <div><strong>Generated:</strong> ${dateStr}</div>
+      <div><strong>Prepared By:</strong> System Generated</div>
+      <div><strong>Classification:</strong> Confidential</div>
+    </div>
+  </div>
 
-  return { generate, preview };
+  <div class="title">${title}</div>
+  <div class="subtitle">Generated on ${dateStr} | Total Records: ${rows.length} | Format: A4 ${orientation}</div>
+
+  <table>
+    <thead><tr>${headers.map((h) => `<th>${h}</th>`).join('')}</tr></thead>
+    <tbody>${tableRows}</tbody>
+  </table>
+
+  <div class="footer">
+    <div class="total">Total Records: <strong>${rows.length}</strong></div>
+  </div>
+
+  <div class="signs">
+    <div class="sign-box"><div class="sign-line">Prepared By</div></div>
+    <div class="sign-box"><div class="sign-line">Reviewed By (QA)</div></div>
+    <div class="sign-box"><div class="sign-line">Approved By</div></div>
+  </div>
+
+  <div class="page-footer">
+    <span>Quantum Invenza WMS — Confidential | GMP Controlled Document</span>
+    <span>Printed: ${dateStr} | For internal use only</span>
+  </div>
+</body>
+</html>`;
+}
+
+/* ─── Preview Modal ─── */
+function PreviewModal({ report, headers, rows, onClose, onDownload, onPrint }: {
+  report: ReportDef;
+  headers: string[];
+  rows: (string | number)[][];
+  onClose: () => void;
+  onDownload: () => void;
+  onPrint: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${report.color}18`, color: report.color }}>
+              {report.icon}
+            </div>
+            <div>
+              <h2 className="font-bold text-sm text-gray-800">{report.title}</h2>
+              <p className="text-[11px] text-gray-400">Preview — {rows.length} records | A4 Landscape</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" onClick={onDownload}><Download size={13} /> Download CSV</Button>
+            <Button variant="ghost" size="sm" onClick={onPrint}><Printer size={13} /> Print A4</Button>
+            <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+
+        {/* A4 Preview */}
+        <div className="flex-1 overflow-auto bg-gray-100 p-6">
+          <div
+            className="bg-white mx-auto shadow-lg"
+            style={{
+              width: '297mm',
+              minHeight: '210mm',
+              maxWidth: '100%',
+              padding: '15mm 12mm',
+              fontFamily: "'Segoe UI', Arial, sans-serif",
+            }}
+          >
+            {/* Report Header */}
+            <div className="flex items-start justify-between pb-3 mb-4" style={{ borderBottom: '2.5px solid #D4A847' }}>
+              <div>
+                <div className="text-lg font-black" style={{ color: '#D4A847' }}>Quantum Invenza</div>
+                <div className="text-[9px] text-gray-500 mt-0.5">Forge Quantum Solution | GMP Controlled Document</div>
+              </div>
+              <div className="text-right text-[9px] text-gray-500 leading-relaxed">
+                <div><strong>Document:</strong> {report.title}</div>
+                <div><strong>Generated:</strong> {new Date().toLocaleString()}</div>
+                <div><strong>Prepared By:</strong> System Generated</div>
+                <div><strong>Classification:</strong> Confidential</div>
+              </div>
+            </div>
+
+            {/* Title */}
+            <div className="text-sm font-bold text-gray-900 mb-0.5">{report.title}</div>
+            <div className="text-[10px] text-gray-500 mb-4">
+              Generated on {new Date().toLocaleString()} | Total Records: {rows.length} | Format: A4 Landscape
+            </div>
+
+            {/* Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-[9.5px]">
+                <thead>
+                  <tr>
+                    {headers.map((h) => (
+                      <th key={h} className="text-left px-2 py-1.5 font-bold text-[8.5px] uppercase tracking-wide text-gray-700 whitespace-nowrap" style={{ background: '#f8f6f0', border: '1px solid #d4d0c8' }}>
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((row, i) => (
+                    <tr key={i}>
+                      {row.map((cell, j) => (
+                        <td key={j} className="px-2 py-1.5 text-gray-700" style={{ border: '1px solid #e5e7eb', background: i % 2 === 0 ? 'white' : '#fafaf8' }}>
+                          {cell ?? '—'}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Footer */}
+            <div className="mt-4 text-[9px] text-gray-500">
+              Total Records: <strong>{rows.length}</strong>
+            </div>
+
+            {/* Signature lines */}
+            <div className="flex gap-16 mt-8">
+              {['Prepared By', 'Reviewed By (QA)', 'Approved By'].map((label) => (
+                <div key={label} className="text-center">
+                  <div className="w-28 border-t border-gray-400 pt-1 text-[8px] text-gray-500">{label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Page footer */}
+            <div className="flex justify-between mt-6 pt-2 border-t border-gray-200 text-[7.5px] text-gray-400">
+              <span>Quantum Invenza WMS — Confidential | GMP Controlled Document</span>
+              <span>For internal use only</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ─── Schedule Modal ─── */
@@ -184,7 +326,59 @@ function ScheduleModal({ title, onClose }: { title: string; onClose: () => void 
 /* ─── Main Page ─── */
 export default function ReportsPage() {
   const [scheduleReport, setScheduleReport] = useState<string | null>(null);
-  const { generate, preview } = useReportGenerator();
+  const [previewReport, setPreviewReport] = useState<string | null>(null);
+  const { getReportData } = useReportData();
+
+  const handleDownloadCSV = (reportId: string) => {
+    const report = REPORTS.find((r) => r.id === reportId);
+    const { headers, rows } = getReportData(reportId);
+    const csvData = rows.map((row) => {
+      const obj: Record<string, string | number> = {};
+      headers.forEach((h, i) => { obj[h] = row[i]; });
+      return obj;
+    });
+    exportToCSV(csvData, `${reportId}-report`);
+    toast.success(`${report?.title ?? 'Report'} downloaded as CSV`);
+  };
+
+  const handleDownloadA4 = (reportId: string) => {
+    const report = REPORTS.find((r) => r.id === reportId);
+    if (!report) return;
+    const { headers, rows } = getReportData(reportId);
+    const html = buildA4Html(report.title, headers, rows);
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${reportId}-report-A4.html`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast.success(`${report.title} downloaded (A4 format — open in browser and print to PDF)`);
+  };
+
+  const handlePrintA4 = (reportId: string) => {
+    const report = REPORTS.find((r) => r.id === reportId);
+    if (!report) return;
+    const { headers, rows } = getReportData(reportId);
+    const html = buildA4Html(report.title, headers, rows);
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    const iframeDoc = iframe.contentDocument ?? iframe.contentWindow?.document;
+    if (!iframeDoc) return;
+    iframeDoc.open();
+    iframeDoc.write(html);
+    iframeDoc.close();
+    setTimeout(() => {
+      iframe.contentWindow?.print();
+      setTimeout(() => document.body.removeChild(iframe), 1000);
+    }, 300);
+  };
+
+  const previewData = previewReport ? getReportData(previewReport) : null;
+  const previewReportDef = previewReport ? REPORTS.find((r) => r.id === previewReport) : null;
 
   return (
     <div className="space-y-4">
@@ -215,16 +409,16 @@ export default function ReportsPage() {
             </div>
             <div className="flex gap-2">
               <button
-                onClick={() => generate(report.id)}
+                onClick={() => handleDownloadCSV(report.id)}
                 className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors font-medium"
               >
-                <Download size={12} /> Download
+                <Download size={12} /> CSV
               </button>
               <button
-                onClick={() => preview(report.id)}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 text-xs rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors font-medium"
+                onClick={() => setPreviewReport(report.id)}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 text-xs rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors font-medium"
               >
-                <Search size={12} /> Preview
+                <Eye size={12} /> Preview
               </button>
               <button
                 onClick={() => setScheduleReport(report.title)}
@@ -238,7 +432,18 @@ export default function ReportsPage() {
         ))}
       </div>
 
+      {/* Modals */}
       {scheduleReport && <ScheduleModal title={scheduleReport} onClose={() => setScheduleReport(null)} />}
+      {previewReport && previewReportDef && previewData && (
+        <PreviewModal
+          report={previewReportDef}
+          headers={previewData.headers}
+          rows={previewData.rows}
+          onClose={() => setPreviewReport(null)}
+          onDownload={() => { handleDownloadCSV(previewReport); }}
+          onPrint={() => { handlePrintA4(previewReport); }}
+        />
+      )}
     </div>
   );
 }

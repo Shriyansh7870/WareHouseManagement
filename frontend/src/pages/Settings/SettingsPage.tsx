@@ -292,7 +292,7 @@ export default function SettingsPage() {
 
             <div className="bg-white rounded-xl p-6" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
               <div className="flex items-center gap-4 mb-6 pb-6 border-b border-gray-100">
-                <img src="/golden_blue_logo.png" alt="Logo" className="w-16 h-16 rounded-xl object-contain bg-gray-50 p-1 border border-gray-200" />
+                <img src="/logo3.png" alt="Logo" className="w-16 h-16 rounded-xl object-contain" />
                 <div>
                   <h3 className="font-bold text-base text-gray-800">PharmaTech Manufacturing Pvt. Ltd.</h3>
                   <p className="text-xs text-gray-500">Quantum Invenza WMS — MH-SITE-01</p>

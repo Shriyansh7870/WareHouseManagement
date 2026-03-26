@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/authStore';
 import Card from '../../components/ui/Card';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer,
@@ -158,6 +159,8 @@ export default function Dashboard() {
   const [lastRefresh, setLastRefresh] = useState(new Date());
   const [refreshing, setRefreshing] = useState(false);
   const navigate = useNavigate();
+  const { user } = useAuthStore();
+  const userName = user?.name?.split(' ')[0] ?? 'User';
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -179,7 +182,7 @@ export default function Dashboard() {
       >
         <div>
           <h1 className="text-white text-xl font-bold mb-1">
-            Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, Rahul
+            Good {new Date().getHours() < 12 ? 'Morning' : new Date().getHours() < 17 ? 'Afternoon' : 'Evening'}, {userName}
           </h1>
           <p className="text-white/50 text-sm">
             Here's your warehouse overview for {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}

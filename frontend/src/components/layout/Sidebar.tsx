@@ -1,65 +1,84 @@
-import React, { useEffect } from 'react';
-import { NavLink, useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, Package, Truck, CheckCircle, Thermometer,
-  Rocket, RefreshCw, Factory, FileText, Hash, Bot, BarChart2,
-  Search, Settings, LogOut, ChevronLeft, ChevronRight, X
-} from 'lucide-react';
-import { useAuthStore } from '../../store/authStore';
-import { useUIStore } from '../../store/uiStore';
-import { NAV_ITEMS } from '../../utils/constants';
+  LayoutDashboard,
+  Package,
+  Truck,
+  CheckCircle,
+  Thermometer,
+  Rocket,
+  RefreshCw,
+  Factory,
+  FileText,
+  Hash,
+  Bot,
+  BarChart2,
+  Search,
+  Settings,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  X,
+} from "lucide-react";
+import { useAuthStore } from "../../store/authStore";
+import { useUIStore } from "../../store/uiStore";
+import { NAV_ITEMS } from "../../utils/constants";
 
-const ICON_MAP: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
-  LayoutDashboard, Package, Truck, CheckCircle, Thermometer,
-  Rocket, RefreshCw, Factory, FileText, Hash, Bot, BarChart2,
-  Search, Settings,
+const ICON_MAP: Record<
+  string,
+  React.ComponentType<{ size?: number; className?: string }>
+> = {
+  LayoutDashboard,
+  Package,
+  Truck,
+  CheckCircle,
+  Thermometer,
+  Rocket,
+  RefreshCw,
+  Factory,
+  FileText,
+  Hash,
+  Bot,
+  BarChart2,
+  Search,
+  Settings,
 };
 
-const BADGE_COLORS: Record<string, string> = {
-  purple: 'bg-[rgba(212,168,71,0.18)] text-[#D4A847] border border-[rgba(212,168,71,0.3)]',
-  orange: 'bg-[rgba(249,115,22,0.15)] text-[#f97316] border border-[rgba(249,115,22,0.3)]',
-  red: 'bg-[rgba(239,68,68,0.15)] text-[#ef4444] border border-[rgba(239,68,68,0.3)]',
-};
-
-export default function Sidebar() {
-  const { user, logout } = useAuthStore();
-  const { sidebarCollapsed, toggleSidebar, mobileSidebarOpen, closeMobileSidebar } = useUIStore();
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // Close mobile drawer on route change
-  useEffect(() => {
-    closeMobileSidebar();
-  }, [location.pathname]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const initials = user?.name?.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase() ?? 'RM';
-
-  const NavContent = ({ collapsed }: { collapsed: boolean }) => (
+/* ─── NavContent extracted as a standalone component ─── */
+function NavContent({
+  collapsed,
+  user,
+  initials,
+  onLogout,
+  onCloseMobile,
+}: {
+  collapsed: boolean;
+  user: { name?: string; role?: string } | null;
+  initials: string;
+  onLogout: () => void;
+  onCloseMobile: () => void;
+}) {
+  return (
     <>
       {/* Brand Header */}
-      <div className="flex items-center gap-3 px-5 py-4" style={{ borderBottom: '1px solid rgba(212,168,71,0.1)' }}>
-        <img
-          src="/golden_blue_logo.png"
-          alt="Logo"
-          className="w-12 h-12 rounded-lg flex-shrink-0 object-contain bg-white/90 p-0.5"
-        />
-        {!collapsed && (
-          <div className="min-w-0 flex-1">
-            <div className="font-display font-700 text-base leading-tight">
-              <span className="text-white">Quantum</span>{' '}
-              <span style={{ color: 'var(--accent-gold)' }}>Invenza</span>
+      <div
+        className="flex flex-col items-center justify-center px-4 py-5 relative"
+        style={{ borderBottom: "1px solid rgba(212,168,71,0.1)" }}
+      >
+        {!collapsed ? (
+          <>
+            <img src="/logo3.png" alt="Logo" className="h-16 object-contain mb-2" />
+            <div className="font-display font-bold text-sm text-center leading-tight">
+              <span className="text-white">Forge Quantum</span>{" "}
+              <span style={{ color: "#D4A847" }}>Solution</span>
             </div>
-          </div>
+          </>
+        ) : (
+          <img src="/logo3.png" alt="Logo" className="w-9 h-9 object-contain" />
         )}
-        {/* Mobile close button */}
         <button
-          onClick={closeMobileSidebar}
-          className="ml-auto text-white/40 hover:text-white transition-colors lg:hidden"
+          onClick={onCloseMobile}
+          className="absolute right-3 top-3 text-white/40 hover:text-white transition-colors lg:hidden"
         >
           <X size={16} />
         </button>
@@ -80,18 +99,21 @@ export default function Sidebar() {
                 <NavLink
                   key={item.path}
                   to={item.path}
-                  end={item.path === '/'}
+                  end={item.path === "/"}
                   className={({ isActive }) =>
                     `flex items-center gap-2.5 mx-2 mb-0.5 rounded-md transition-all relative group ${
                       isActive
-                        ? 'text-white font-semibold'
-                        : 'text-white/50 hover:text-white/80'
-                    } ${collapsed ? 'px-2 py-2.5 justify-center' : 'px-3 py-2'}`
+                        ? "text-white font-semibold"
+                        : "text-white/50 hover:text-white/80"
+                    } ${collapsed ? "px-2 py-2.5 justify-center" : "px-3 py-2"}`
                   }
                   style={({ isActive }) =>
                     isActive
-                      ? { background: 'var(--sidebar-active)', borderLeft: '2.5px solid var(--sidebar-active-bar)' }
-                      : { borderLeft: '2.5px solid transparent' }
+                      ? {
+                          background: "var(--sidebar-active)",
+                          borderLeft: "2.5px solid var(--sidebar-active-bar)",
+                        }
+                      : { borderLeft: "2.5px solid transparent" }
                   }
                 >
                   {({ isActive }) => (
@@ -99,18 +121,17 @@ export default function Sidebar() {
                       {Icon && (
                         <Icon
                           size={16}
-                          className={isActive ? 'text-[#D4A847]' : 'text-white/40 group-hover:text-white/60'}
+                          className={
+                            isActive
+                              ? "text-[#D4A847]"
+                              : "text-white/40 group-hover:text-white/60"
+                          }
                         />
                       )}
                       {!collapsed && (
-                        <>
-                          <span className="flex-1 text-sm truncate">{item.label}</span>
-                          {item.badge && item.badgeColor && (
-                            <span className={`text-[10px] px-1.5 py-0.5 rounded font-semibold ${BADGE_COLORS[item.badgeColor]}`}>
-                              {item.badge}
-                            </span>
-                          )}
-                        </>
+                        <span className="flex-1 text-sm truncate">
+                          {item.label}
+                        </span>
                       )}
                     </>
                   )}
@@ -123,20 +144,29 @@ export default function Sidebar() {
 
       {/* Footer */}
       {!collapsed && (
-        <div className="p-4" style={{ borderTop: '1px solid rgba(212,168,71,0.1)' }}>
+        <div
+          className="p-4"
+          style={{ borderTop: "1px solid rgba(212,168,71,0.1)" }}
+        >
           <div className="flex items-center gap-2.5">
             <div
               className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold"
-              style={{ background: 'linear-gradient(135deg, #D4A847, #f97316)' }}
+              style={{
+                background: "linear-gradient(135deg, #D4A847, #f97316)",
+              }}
             >
               {initials}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-white text-xs font-medium truncate">{user?.name ?? 'Rahul Mehta'}</div>
-              <div className="text-white/35 text-[10px] truncate">{user?.role?.replace('_', ' ') ?? 'QA Manager'}</div>
+              <div className="text-white text-xs font-medium truncate">
+                {user?.name ?? "Rahul Mehta"}
+              </div>
+              <div className="text-white/35 text-[10px] truncate">
+                {user?.role?.replace("_", " ") ?? "QA Manager"}
+              </div>
             </div>
             <button
-              onClick={handleLogout}
+              onClick={onLogout}
               className="text-white/30 hover:text-red-400 transition-colors"
               title="Logout"
             >
@@ -147,6 +177,36 @@ export default function Sidebar() {
       )}
     </>
   );
+}
+
+/* ─── Main Sidebar ─── */
+export default function Sidebar() {
+  const { user, logout } = useAuthStore();
+  const {
+    sidebarCollapsed,
+    toggleSidebar,
+    mobileSidebarOpen,
+    closeMobileSidebar,
+  } = useUIStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    closeMobileSidebar();
+  }, [location.pathname, closeMobileSidebar]);
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
+  const initials =
+    user?.name
+      ?.split(" ")
+      .map((n) => n[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() ?? "RM";
 
   return (
     <>
@@ -154,19 +214,28 @@ export default function Sidebar() {
       <aside
         className="fixed left-0 top-0 h-screen flex-col transition-all duration-300 z-40 hidden lg:flex"
         style={{
-          width: sidebarCollapsed ? '64px' : '264px',
-          background: 'linear-gradient(180deg, #112D4E 0%, #0A1F38 100%)',
-          borderRight: '1px solid rgba(212,168,71,0.12)',
+          width: sidebarCollapsed ? "64px" : "300px",
+          background: "linear-gradient(180deg, #112D4E 0%, #0A1F38 100%)",
+          borderRight: "1px solid rgba(212,168,71,0.12)",
         }}
       >
-        {/* Collapse Toggle */}
         <button
           onClick={toggleSidebar}
           className="absolute -right-3 top-14 w-6 h-6 rounded-full flex items-center justify-center border border-[rgba(212,168,71,0.2)] bg-[#0A1628] text-[#D4A847]/60 hover:text-[#D4A847] z-50"
         >
-          {sidebarCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+          {sidebarCollapsed ? (
+            <ChevronRight size={12} />
+          ) : (
+            <ChevronLeft size={12} />
+          )}
         </button>
-        <NavContent collapsed={sidebarCollapsed} />
+        <NavContent
+          collapsed={sidebarCollapsed}
+          user={user}
+          initials={initials}
+          onLogout={handleLogout}
+          onCloseMobile={closeMobileSidebar}
+        />
       </aside>
 
       {/* Mobile backdrop */}
@@ -181,13 +250,19 @@ export default function Sidebar() {
       <aside
         className="fixed left-0 top-0 h-screen flex flex-col z-50 transition-transform duration-300 lg:hidden"
         style={{
-          width: '264px',
-          background: 'linear-gradient(180deg, #112D4E 0%, #0A1F38 100%)',
-          borderRight: '1px solid rgba(212,168,71,0.12)',
-          transform: mobileSidebarOpen ? 'translateX(0)' : 'translateX(-264px)',
+          width: "300px",
+          background: "linear-gradient(180deg, #112D4E 0%, #0A1F38 100%)",
+          borderRight: "1px solid rgba(212,168,71,0.12)",
+          transform: mobileSidebarOpen ? "translateX(0)" : "translateX(-300px)",
         }}
       >
-        <NavContent collapsed={false} />
+        <NavContent
+          collapsed={false}
+          user={user}
+          initials={initials}
+          onLogout={handleLogout}
+          onCloseMobile={closeMobileSidebar}
+        />
       </aside>
     </>
   );
