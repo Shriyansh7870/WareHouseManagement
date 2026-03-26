@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Eye, BarChart2, Star } from 'lucide-react';
+import { Eye, BarChart2, Star, Plus, Download, Printer } from 'lucide-react';
+import toast from 'react-hot-toast';
 import KpiCard from '../../components/ui/KpiCard';
 import TabBar from '../../components/ui/TabBar';
 import Badge from '../../components/ui/Badge';
@@ -7,9 +8,110 @@ import Button from '../../components/ui/Button';
 import Card from '../../components/ui/Card';
 import Modal from '../../components/ui/Modal';
 import SearchBox from '../../components/ui/SearchBox';
+import { printTable } from '../../utils/printUtils';
+import { exportToCSV } from '../../utils/csvExport';
 import { MOCK_VENDORS, MOCK_ASNS } from '../../utils/mockData';
 import { formatDate } from '../../utils/formatters';
 import type { Vendor, VendorStatus } from '../../types/vendor.types';
+
+const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 transition-colors';
+const inputErrCls = 'w-full px-3 py-2 border border-red-400 bg-red-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300/30 transition-colors';
+const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
+
+const VENDOR_CATEGORIES = ['API', 'API_AND_FDF', 'EXCIPIENTS', 'PACKAGING', 'EQUIPMENT', 'LOGISTICS'];
+const GMP_CERTS = ['WHO-GMP', 'US-FDA', 'EU-GMP', 'ISO 9001', 'ISO 13485', 'PICS'];
+
+/* ─── Add Vendor Modal ─── */
+function AddVendorModal({ onClose, onSave }: { onClose: () => void; onSave: (v: Vendor) => void }) {
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [form, setForm] = useState({
+    companyName: '', category: '', drugLicenseNo: '', gmpCertification: '',
+    contactPerson: '', contactEmail: '', contactPhone: '', address: '',
+  });
+
+  const set = (f: string, v: string) => {
+    setForm((prev) => ({ ...prev, [f]: v }));
+    setErrors((prev) => { const c = { ...prev }; delete c[f]; return c; });
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.companyName.trim()) errs.companyName = 'Company name is required';
+    if (!form.category) errs.category = 'Category is required';
+    if (!form.drugLicenseNo.trim()) errs.drugLicenseNo = 'Drug license is required';
+    if (!form.gmpCertification) errs.gmpCertification = 'GMP certification is required';
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) toast.error('Please fill all required fields');
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    await new Promise((r) => setTimeout(r, 300));
+    const code = `VEN-${String(Math.floor(Math.random() * 900) + 100)}`;
+    onSave({
+      id: `v-${Date.now()}`, vendorCode: code, companyName: form.companyName.trim(),
+      category: form.category, drugLicenseNo: form.drugLicenseNo.trim(),
+      gmpCertification: form.gmpCertification, status: 'APPROVED', posFY: 0,
+    });
+    toast.success(`Vendor ${form.companyName} added`);
+    setSaving(false);
+    onClose();
+  };
+
+  const hasErr = (f: string) => !!errors[f];
+
+  return (
+    <Modal title="Add New Vendor" width="720px" onClose={onClose} footer={
+      <><Button variant="ghost" onClick={onClose}>Cancel</Button>
+      <Button variant="primary" loading={saving} onClick={handleSubmit}>Add Vendor</Button></>
+    }>
+      <div className="space-y-5">
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Company Information</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className={labelCls}>Company Name <span className="text-red-500">*</span></label>
+              <input type="text" value={form.companyName} onChange={(e) => set('companyName', e.target.value)} placeholder="e.g. Cipla Ltd." className={hasErr('companyName') ? inputErrCls : inputCls} />
+              {errors.companyName && <p className="text-[11px] text-red-500 mt-0.5">{errors.companyName}</p>}</div>
+            <div><label className={labelCls}>Category <span className="text-red-500">*</span></label>
+              <select value={form.category} onChange={(e) => set('category', e.target.value)} className={hasErr('category') ? inputErrCls : inputCls}>
+                <option value="">Select category</option>
+                {VENDOR_CATEGORIES.map((c) => <option key={c} value={c}>{c.replace(/_/g, ' ')}</option>)}
+              </select>
+              {errors.category && <p className="text-[11px] text-red-500 mt-0.5">{errors.category}</p>}</div>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Compliance & Licensing</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className={labelCls}>Drug License No. <span className="text-red-500">*</span></label>
+              <input type="text" value={form.drugLicenseNo} onChange={(e) => set('drugLicenseNo', e.target.value)} placeholder="e.g. MH-DL-001234" className={hasErr('drugLicenseNo') ? inputErrCls : inputCls} />
+              {errors.drugLicenseNo && <p className="text-[11px] text-red-500 mt-0.5">{errors.drugLicenseNo}</p>}</div>
+            <div><label className={labelCls}>GMP Certification <span className="text-red-500">*</span></label>
+              <select value={form.gmpCertification} onChange={(e) => set('gmpCertification', e.target.value)} className={hasErr('gmpCertification') ? inputErrCls : inputCls}>
+                <option value="">Select certification</option>
+                {GMP_CERTS.map((c) => <option key={c}>{c}</option>)}
+              </select>
+              {errors.gmpCertification && <p className="text-[11px] text-red-500 mt-0.5">{errors.gmpCertification}</p>}</div>
+          </div>
+        </div>
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Contact Details <span className="text-[10px] text-gray-300 font-normal normal-case tracking-normal">(optional)</span></h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className={labelCls}>Contact Person</label>
+              <input type="text" value={form.contactPerson} onChange={(e) => set('contactPerson', e.target.value)} placeholder="Name" className={inputCls} /></div>
+            <div><label className={labelCls}>Phone</label>
+              <input type="tel" value={form.contactPhone} onChange={(e) => set('contactPhone', e.target.value)} placeholder="+91 98765 43210" className={inputCls} /></div>
+            <div className="col-span-2"><label className={labelCls}>Address</label>
+              <input type="text" value={form.address} onChange={(e) => set('address', e.target.value)} placeholder="Full address" className={inputCls} /></div>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
 
 function VendorDetailModal({ vendor, onClose }: { vendor: Vendor; onClose: () => void }) {
   const audit = MOCK_AUDITS.find((a) => a.vendor === vendor.companyName);
@@ -164,8 +266,10 @@ export default function VendorsPage() {
   const [tab, setTab] = useState('avl');
   const [search, setSearch] = useState('');
   const [viewVendor, setViewVendor] = useState<Vendor | null>(null);
+  const [showAddVendor, setShowAddVendor] = useState(false);
+  const [vendors, setVendors] = useState(MOCK_VENDORS);
 
-  const filteredVendors = MOCK_VENDORS.filter((v) =>
+  const filteredVendors = vendors.filter((v) =>
     !search ||
     v.companyName.toLowerCase().includes(search.toLowerCase()) ||
     v.vendorCode.toLowerCase().includes(search.toLowerCase())
@@ -174,17 +278,42 @@ export default function VendorsPage() {
   return (
     <div className="space-y-4">
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {VENDOR_KPIS.map((k) => <KpiCard key={k.label} {...k} />)}
       </div>
 
-      <TabBar tabs={TABS} active={tab} onChange={setTab} />
+      <div className="flex items-center justify-between">
+        <TabBar tabs={TABS} active={tab} onChange={setTab} />
+        {tab === 'avl' && (
+          <Button variant="primary" size="sm" onClick={() => setShowAddVendor(true)}>
+            <Plus size={13} /> Add Vendor
+          </Button>
+        )}
+      </div>
 
       {/* AVL Table */}
       {tab === 'avl' && (
         <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
-          <div className="p-4 border-b border-gray-100">
+          <div className="p-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
             <SearchBox value={search} onChange={setSearch} placeholder="Search vendor, code..." className="w-72" />
+            <div className="ml-auto flex gap-2">
+              <Button variant="ghost" size="sm" onClick={() => exportToCSV(
+                filteredVendors.map((v) => ({
+                  'Vendor Code': v.vendorCode, 'Company': v.companyName, 'Category': v.category,
+                  'Drug License': v.drugLicenseNo ?? '', 'GMP Cert': v.gmpCertification ?? '',
+                  'QA Rating': v.qaRating ?? '', 'Pass Rate %': v.qaPassRatePct ?? '',
+                  'Last Audit': v.lastAuditDate ?? '', 'POs FY': v.posFY ?? 0, 'Status': v.status,
+                })),
+                'vendor-master'
+              )}><Download size={13} /> Export</Button>
+              <Button variant="ghost" size="sm" onClick={() => printTable({
+                title: 'Approved Vendor List (AVL)',
+                subtitle: `${filteredVendors.length} vendors`,
+                headers: ['Code', 'Company', 'Category', 'Drug License', 'GMP', 'QA Rating', 'Status'],
+                rows: filteredVendors.map((v) => [v.vendorCode, v.companyName, v.category, v.drugLicenseNo ?? '—', v.gmpCertification ?? '—', v.qaRating ?? '—', v.status]),
+                orientation: 'landscape',
+              })}><Printer size={13} /> Print</Button>
+            </div>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[900px]">
@@ -235,7 +364,7 @@ export default function VendorsPage() {
 
       {/* Scorecards */}
       {tab === 'scorecards' && (
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {SCORECARDS.map((sc) => (
             <Card key={sc.vendorId}>
               <div className="flex items-center justify-between mb-4">
@@ -298,6 +427,7 @@ export default function VendorsPage() {
       )}
 
       {viewVendor && <VendorDetailModal vendor={viewVendor} onClose={() => setViewVendor(null)} />}
+      {showAddVendor && <AddVendorModal onClose={() => setShowAddVendor(false)} onSave={(v) => setVendors((prev) => [v, ...prev])} />}
 
       {/* Vendor Audits */}
       {tab === 'audits' && (

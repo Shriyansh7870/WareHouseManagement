@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
-import { Upload, Eye, FileText, CheckCircle } from 'lucide-react';
+import { Upload, Eye, FileText, CheckCircle, Download, Printer } from 'lucide-react';
+import toast from 'react-hot-toast';
 import KpiCard from '../../components/ui/KpiCard';
 import TabBar from '../../components/ui/TabBar';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
 import SearchBox from '../../components/ui/SearchBox';
+import { printTable } from '../../utils/printUtils';
+import { exportToCSV } from '../../utils/csvExport';
 import { MOCK_DOCUMENTS } from '../../utils/mockData';
 import { formatDate } from '../../utils/formatters';
 import type { DocType, DocStatus } from '../../types/document.types';
+
+const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 transition-colors';
+const inputErrCls = 'w-full px-3 py-2 border border-red-400 bg-red-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300/30 transition-colors';
+const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
 
 const DOC_KPIS = [
   { label: 'Total Documents', value: '84', sub: '+5 this month', trend: 'up' as const, accentColor: 'purple' as const },
@@ -39,63 +46,95 @@ function docStatusVariant(s: DocStatus) {
   }
 }
 
+const DOC_TYPES: DocType[] = ['SOP', 'COA', 'VALIDATION', 'REGULATORY', 'CAPA', 'AUDIT_REPORT'];
+const DOC_TYPE_LABELS: Record<DocType, string> = { SOP: 'SOP', COA: 'Certificate of Analysis', VALIDATION: 'Validation', REGULATORY: 'Regulatory', CAPA: 'CAPA', AUDIT_REPORT: 'Audit Report' };
+const OWNERS = ['Rahul Mehta', 'Priya Sharma', 'Amit Kumar', 'Kiran Patil'];
+
 function UploadDocumentModal({ onClose }: { onClose: () => void }) {
   const [dragging, setDragging] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [form, setForm] = useState({
+    title: '', docType: '' as DocType | '', version: '1.0', owner: '', reviewDate: '', linkedTo: '', description: '',
+  });
+
+  const set = (f: string, v: string) => {
+    setForm((prev) => ({ ...prev, [f]: v }));
+    setErrors((prev) => { const c = { ...prev }; delete c[f]; return c; });
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.title.trim()) errs.title = 'Title is required';
+    if (!form.docType) errs.docType = 'Type is required';
+    if (!form.owner) errs.owner = 'Owner is required';
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) toast.error('Please fill all required fields');
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    await new Promise((r) => setTimeout(r, 400));
+    toast.success(`Document "${form.title}" uploaded successfully`);
+    setSaving(false);
+    onClose();
+  };
+
+  const hasErr = (f: string) => !!errors[f];
+
   return (
-    <Modal
-      title="Upload Document"
-      width="560px"
-      onClose={onClose}
-      footer={
-        <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" onClick={() => { alert('Document uploaded (mock)'); onClose(); }}>Upload</Button>
-        </>
-      }
-    >
-      <div className="space-y-4 text-sm">
+    <Modal title="Upload Document" width="720px" onClose={onClose} footer={
+      <><Button variant="ghost" onClick={onClose}>Cancel</Button>
+      <Button variant="primary" loading={saving} onClick={handleSubmit}><Upload size={13} /> Upload</Button></>
+    }>
+      <div className="space-y-5">
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Title <span className="text-red-500">*</span></label>
-          <input type="text" placeholder="Document title" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Type <span className="text-red-500">*</span></label>
-            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
-              <option value="">Select type</option>
-              {['SOP', 'CoA', 'Validation', 'Regulatory', 'CAPA', 'Audit Report', 'Policy'].map((t) => <option key={t}>{t}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Version</label>
-            <input type="text" placeholder="e.g. 1.0, 2.1" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Owner <span className="text-red-500">*</span></label>
-            <select className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
-              <option>Rahul Mehta</option>
-              <option>Priya Sharma</option>
-              <option>Amit Kumar</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">Review Date</label>
-            <input type="date" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Document Details</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="col-span-2"><label className={labelCls}>Title <span className="text-red-500">*</span></label>
+              <input type="text" value={form.title} onChange={(e) => set('title', e.target.value)} placeholder="e.g. SOP — GRN Receiving Process v2.0" className={hasErr('title') ? inputErrCls : inputCls} />
+              {errors.title && <p className="text-[11px] text-red-500 mt-0.5">{errors.title}</p>}</div>
+            <div><label className={labelCls}>Type <span className="text-red-500">*</span></label>
+              <select value={form.docType} onChange={(e) => set('docType', e.target.value)} className={hasErr('docType') ? inputErrCls : inputCls}>
+                <option value="">Select type</option>
+                {DOC_TYPES.map((t) => <option key={t} value={t}>{DOC_TYPE_LABELS[t]}</option>)}
+              </select>
+              {errors.docType && <p className="text-[11px] text-red-500 mt-0.5">{errors.docType}</p>}</div>
+            <div><label className={labelCls}>Version</label>
+              <input type="text" value={form.version} onChange={(e) => set('version', e.target.value)} placeholder="e.g. 1.0" className={inputCls} /></div>
+            <div><label className={labelCls}>Owner <span className="text-red-500">*</span></label>
+              <select value={form.owner} onChange={(e) => set('owner', e.target.value)} className={hasErr('owner') ? inputErrCls : inputCls}>
+                <option value="">Select owner</option>
+                {OWNERS.map((o) => <option key={o}>{o}</option>)}
+              </select>
+              {errors.owner && <p className="text-[11px] text-red-500 mt-0.5">{errors.owner}</p>}</div>
+            <div><label className={labelCls}>Review Date</label>
+              <input type="date" value={form.reviewDate} onChange={(e) => set('reviewDate', e.target.value)} className={inputCls} /></div>
           </div>
         </div>
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Linked To</label>
-          <input type="text" placeholder="GRN No., Batch No., Module..." className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">References & Description</h4>
+          <div className="space-y-4">
+            <div><label className={labelCls}>Linked To</label>
+              <input type="text" value={form.linkedTo} onChange={(e) => set('linkedTo', e.target.value)} placeholder="GRN No., Batch No., Module name..." className={inputCls} /></div>
+            <div><label className={labelCls}>Description</label>
+              <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={2} placeholder="Brief description of the document..." className={`${inputCls} resize-none`} /></div>
+          </div>
         </div>
-        <div
-          className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragging ? 'border-[#D4A847] bg-purple-50' : 'border-gray-200 hover:border-[#D4A847]'}`}
-          onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={() => setDragging(false)}
-        >
-          <Upload size={24} className="mx-auto mb-2 text-gray-400" />
-          <p className="text-sm text-gray-500">Drag & drop or <span className="text-[#D4A847] font-medium">click to browse</span></p>
-          <p className="text-xs text-gray-400 mt-1">PDF, DOCX, XLSX — max 25MB</p>
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">File Upload</h4>
+          <div
+            className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${dragging ? 'border-[#D4A847] bg-[#D4A847]/5' : 'border-gray-200 hover:border-[#D4A847]'}`}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={() => setDragging(false)}
+          >
+            <Upload size={24} className="mx-auto mb-2 text-gray-400" />
+            <p className="text-sm text-gray-500">Drag & drop or <span className="text-[#D4A847] font-medium">click to browse</span></p>
+            <p className="text-xs text-gray-400 mt-1">PDF, DOCX, XLSX, JPG — max 25MB</p>
+          </div>
         </div>
       </div>
     </Modal>
@@ -165,7 +204,7 @@ export default function DocumentsPage() {
   return (
     <div className="space-y-4">
       {/* KPIs */}
-      <div className="grid grid-cols-4 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {DOC_KPIS.map((k) => <KpiCard key={k.label} {...k} />)}
       </div>
 
@@ -179,8 +218,24 @@ export default function DocumentsPage() {
 
       {tab === 'all' && (
         <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
-          <div className="p-4 border-b border-gray-100">
+          <div className="p-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
             <SearchBox value={search} onChange={setSearch} placeholder="Search title, ID..." className="w-72" />
+            <div className="ml-auto flex gap-2">
+              <Button variant="ghost" size="sm" onClick={() => exportToCSV(
+                filtered.map((d) => ({
+                  'Doc ID': d.docId, 'Title': d.title, 'Type': d.docType, 'Version': d.version ?? '',
+                  'Owner': d.owner, 'Linked To': d.linkedTo ?? '', 'Review Date': d.reviewDate ?? '', 'Status': d.status,
+                })),
+                'documents'
+              )}><Download size={13} /> Export</Button>
+              <Button variant="ghost" size="sm" onClick={() => printTable({
+                title: 'Document Management Register',
+                subtitle: `${filtered.length} documents`,
+                headers: ['Doc ID', 'Title', 'Type', 'Version', 'Owner', 'Status'],
+                rows: filtered.map((d) => [d.docId, d.title, d.docType, `v${d.version ?? '1.0'}`, d.owner, d.status]),
+                orientation: 'landscape',
+              })}><Printer size={13} /> Print</Button>
+            </div>
           </div>
           <DocTable data={filtered} />
         </div>

@@ -6,12 +6,21 @@ export interface DeliveryOrder {
   doNumber: string;
   orderDate: string;
   customerName: string;
+  customerAddress?: string;
+  customerPhone?: string;
   items: string;
   qty: number;
+  unit?: string;
   carrier?: string;
   trackingNo?: string;
   pickStatus: PickStatus;
   doStatus: DOStatus;
+  priority?: 'NORMAL' | 'URGENT' | 'EXPRESS';
+  expectedDelivery?: string;
+  dispatchDate?: string;
+  deliveredDate?: string;
+  remarks?: string;
+  createdAt?: string;
 }
 
 export interface PickItem {

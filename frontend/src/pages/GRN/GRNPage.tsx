@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Eye, CheckCircle, XCircle, Download, GitBranch, Printer } from 'lucide-react';
+import { Plus, Eye, CheckCircle, XCircle, Download, GitBranch, Printer, Upload } from 'lucide-react';
 import BatchTraceModal from '../../components/ui/BatchTraceModal';
 import { printTable } from '../../utils/printUtils';
 import { exportToCSV } from '../../utils/csvExport';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import toast from 'react-hot-toast';
 import KpiCard from '../../components/ui/KpiCard';
 import TabBar from '../../components/ui/TabBar';
@@ -15,24 +12,10 @@ import Modal from '../../components/ui/Modal';
 import SearchBox from '../../components/ui/SearchBox';
 import { useDataStore } from '../../store/dataStore';
 import { formatDate } from '../../utils/formatters';
+import { CATEGORY_LABELS, STORAGE_LOCATIONS, SITE_CODES } from '../../utils/constants';
+import { MOCK_VENDORS } from '../../utils/mockData';
 import type { GRNStatus } from '../../types/grn.types';
-
-const grnSchema = z.object({
-  vendorName: z.string().min(1, 'Supplier is required'),
-  poRef: z.string().min(1, 'PO Reference is required'),
-  itemName: z.string().min(1, 'Item name is required'),
-  itemCode: z.string().min(1, 'Item code is required'),
-  batchNumber: z.string().min(1, 'Batch number is required'),
-  qtyReceived: z.coerce.number().positive('Quantity must be positive'),
-  unit: z.string().min(1, 'Unit is required'),
-  mfgDate: z.string().min(1, 'Mfg date is required'),
-  expiryDate: z.string().min(1, 'Expiry date is required'),
-  vehicleLR: z.string().optional(),
-  storageLocation: z.string().min(1, 'Storage location is required'),
-  remarks: z.string().optional(),
-});
-
-type GRNForm = z.infer<typeof grnSchema>;
+import type { ItemCategory } from '../../types/inventory.types';
 
 const GRN_KPIS = [
   { label: 'GRNs This Month', value: '12', sub: '+3 vs last month', trend: 'up' as const, accentColor: 'purple' as const },
@@ -52,124 +35,270 @@ function grnStatusVariant(s: GRNStatus) {
   }
 }
 
+const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 transition-colors';
+const inputErrCls = 'w-full px-3 py-2 border border-red-400 bg-red-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300/30 transition-colors';
+const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
+
 function NewGRNModal({ onClose }: { onClose: () => void }) {
   const { addGRN, addInventoryItem } = useDataStore();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<GRNForm>({
-    resolver: zodResolver(grnSchema) as any,
-    defaultValues: { unit: 'units', storageLocation: 'Main Store' },
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [form, setForm] = useState({
+    vendorName: '',
+    poRef: '',
+    itemName: '',
+    itemCode: '',
+    category: '' as ItemCategory | '',
+    batchNumber: '',
+    qtyReceived: '',
+    unit: 'KG',
+    mfgDate: '',
+    expiryDate: '',
+    vehicleLR: '',
+    storageLocation: '',
+    siteCode: '',
+    receivedBy: '',
+    remarks: '',
   });
 
-  const onSubmit = async (data: GRNForm) => {
-    await new Promise(r => setTimeout(r, 400));
+  const set = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => { const copy = { ...prev }; delete copy[field]; return copy; });
+  };
+
+  const validate = (): boolean => {
+    const errs: Record<string, string> = {};
+    if (!form.vendorName) errs.vendorName = 'Supplier is required';
+    if (!form.poRef.trim()) errs.poRef = 'PO Reference is required';
+    if (!form.itemName.trim()) errs.itemName = 'Item Name is required';
+    if (!form.itemCode.trim()) errs.itemCode = 'Item Code is required';
+    if (!form.category) errs.category = 'Category is required';
+    if (!form.batchNumber.trim()) errs.batchNumber = 'Batch Number is required';
+    if (!form.qtyReceived || parseFloat(form.qtyReceived) <= 0) errs.qtyReceived = 'Quantity must be positive';
+    if (!form.mfgDate) errs.mfgDate = 'Manufacturing Date is required';
+    if (!form.expiryDate) errs.expiryDate = 'Expiry Date is required';
+    if (form.mfgDate && form.expiryDate && form.expiryDate <= form.mfgDate) errs.expiryDate = 'Expiry must be after Mfg Date';
+    if (!form.storageLocation) errs.storageLocation = 'Storage Location is required';
+    if (!form.siteCode) errs.siteCode = 'Site Code is required';
+    if (!form.receivedBy.trim()) errs.receivedBy = 'Received By is required';
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error('Please fill all required fields');
+    }
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    await new Promise((r) => setTimeout(r, 400));
+
     const id = `grn-${Date.now()}`;
-    const grnNumber = `GRN-2024-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+    const grnNumber = `GRN-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+
+    const selectedVendor = MOCK_VENDORS.find((v) => v.companyName === form.vendorName);
 
     addGRN({
       id,
       grnNumber,
-      vendorId: 'v-new',
-      vendorName: data.vendorName,
-      itemName: data.itemName,
-      itemCode: data.itemCode,
-      batchNumber: data.batchNumber,
-      qtyReceived: data.qtyReceived,
-      unit: data.unit,
-      mfgDate: data.mfgDate,
-      expiryDate: data.expiryDate,
-      vehicleLR: data.vehicleLR,
-      storageLocation: data.storageLocation,
-      receivedByName: 'Rahul Mehta',
+      vendorId: selectedVendor?.id ?? 'v-new',
+      vendorName: form.vendorName,
+      itemName: form.itemName.trim(),
+      itemCode: form.itemCode.trim().toUpperCase(),
+      batchNumber: form.batchNumber.trim().toUpperCase(),
+      qtyReceived: parseFloat(form.qtyReceived),
+      unit: form.unit,
+      mfgDate: form.mfgDate,
+      expiryDate: form.expiryDate,
+      vehicleLR: form.vehicleLR || undefined,
+      storageLocation: form.storageLocation,
+      receivedByName: form.receivedBy.trim(),
       status: 'PENDING_QA',
       coaLinked: false,
-      remarks: data.remarks,
+      remarks: form.remarks || undefined,
       createdAt: new Date().toISOString(),
     });
 
+    const now = new Date().toISOString();
     addInventoryItem({
       id: `inv-${Date.now()}`,
-      itemCode: data.itemCode,
-      itemName: data.itemName,
-      category: 'FINISHED_GOODS',
-      batchNumber: data.batchNumber,
-      mfgDate: data.mfgDate,
-      expiryDate: data.expiryDate,
-      qtyOnHand: data.qtyReceived,
-      unit: data.unit,
-      reorderLevel: 1000,
-      storageLocation: data.storageLocation,
-      siteCode: 'MH-SITE-01',
+      itemCode: form.itemCode.trim().toUpperCase(),
+      itemName: form.itemName.trim(),
+      category: form.category as ItemCategory,
+      batchNumber: form.batchNumber.trim().toUpperCase(),
+      mfgDate: form.mfgDate,
+      expiryDate: form.expiryDate,
+      qtyOnHand: parseFloat(form.qtyReceived),
+      unit: form.unit,
+      reorderLevel: 0,
+      storageLocation: form.storageLocation,
+      siteCode: form.siteCode,
       qaStatus: 'PENDING_QA',
       grnId: id,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
     });
 
     toast.success(`GRN ${grnNumber} created successfully`);
+    setSaving(false);
     onClose();
   };
 
-  const Field = ({ label, name, type = 'text', placeholder, required = true }: { label: string; name: keyof GRNForm; type?: string; placeholder?: string; required?: boolean }) => (
-    <div>
-      <label className="block text-xs text-gray-500 mb-1">{label} {required && <span className="text-red-500">*</span>}</label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        {...register(name)}
-        className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors[name] ? 'border-red-400 bg-red-50' : 'border-gray-200'}`}
-      />
-      {errors[name] && <p className="text-[11px] text-red-500 mt-0.5">{errors[name]?.message}</p>}
-    </div>
-  );
+  const hasErr = (field: string) => !!errors[field];
 
   return (
     <Modal
-      title="Create New GRN"
-      width="680px"
+      title="Create New Goods Receipt (GRN)"
+      width="780px"
       onClose={onClose}
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" loading={isSubmitting} onClick={handleSubmit(onSubmit)}>
+          <Button variant="primary" loading={saving} onClick={handleSubmit}>
             Submit GRN
           </Button>
         </>
       }
     >
-      <div className="grid grid-cols-2 gap-4">
+      <div className="space-y-6">
+        {/* Section 1: Supplier & PO */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Supplier <span className="text-red-500">*</span></label>
-          <select {...register('vendorName')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.vendorName ? 'border-red-400' : 'border-gray-200'}`}>
-            <option value="">Select supplier</option>
-            {['Cipla Ltd.', 'Sun Pharma', 'Lupin Ltd.', "Dr. Reddy's", 'Aurobindo', 'Zydus Cadila'].map(o => <option key={o}>{o}</option>)}
-          </select>
-          {errors.vendorName && <p className="text-[11px] text-red-500 mt-0.5">{errors.vendorName.message}</p>}
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Supplier & Purchase Order</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Supplier / Vendor <span className="text-red-500">*</span></label>
+              <select value={form.vendorName} onChange={(e) => set('vendorName', e.target.value)} className={hasErr('vendorName') ? inputErrCls : inputCls}>
+                <option value="">Select supplier</option>
+                {MOCK_VENDORS.map((v) => (
+                  <option key={v.id} value={v.companyName}>{v.companyName} ({v.vendorCode})</option>
+                ))}
+              </select>
+              {errors.vendorName && <p className="text-[11px] text-red-500 mt-0.5">{errors.vendorName}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>PO Reference <span className="text-red-500">*</span></label>
+              <input type="text" value={form.poRef} onChange={(e) => set('poRef', e.target.value)} placeholder="e.g. PO-2026-0045" className={hasErr('poRef') ? inputErrCls : inputCls} />
+              {errors.poRef && <p className="text-[11px] text-red-500 mt-0.5">{errors.poRef}</p>}
+            </div>
+          </div>
         </div>
-        <Field label="PO Reference" name="poRef" placeholder="PO-2024-XXXX" />
-        <Field label="Item Name" name="itemName" placeholder="e.g. Paracetamol 500mg" />
-        <Field label="Item Code" name="itemCode" placeholder="e.g. PARA-B2847" />
-        <Field label="Batch Number" name="batchNumber" placeholder="Batch no." />
-        <Field label="Qty Received" name="qtyReceived" type="number" placeholder="0" />
+
+        {/* Section 2: Item Details */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Unit <span className="text-red-500">*</span></label>
-          <select {...register('unit')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
-            {['units', 'kg', 'liters', 'meters'].map(o => <option key={o}>{o}</option>)}
-          </select>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Item Details</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Item Name <span className="text-red-500">*</span></label>
+              <input type="text" value={form.itemName} onChange={(e) => set('itemName', e.target.value)} placeholder="e.g. Paracetamol 500mg" className={hasErr('itemName') ? inputErrCls : inputCls} />
+              {errors.itemName && <p className="text-[11px] text-red-500 mt-0.5">{errors.itemName}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Item Code <span className="text-red-500">*</span></label>
+              <input type="text" value={form.itemCode} onChange={(e) => set('itemCode', e.target.value)} placeholder="e.g. PARA-B2847" className={hasErr('itemCode') ? inputErrCls : inputCls} />
+              {errors.itemCode && <p className="text-[11px] text-red-500 mt-0.5">{errors.itemCode}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Category <span className="text-red-500">*</span></label>
+              <select value={form.category} onChange={(e) => set('category', e.target.value)} className={hasErr('category') ? inputErrCls : inputCls}>
+                <option value="">Select Category</option>
+                {Object.entries(CATEGORY_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </select>
+              {errors.category && <p className="text-[11px] text-red-500 mt-0.5">{errors.category}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Batch Number <span className="text-red-500">*</span></label>
+              <input type="text" value={form.batchNumber} onChange={(e) => set('batchNumber', e.target.value)} placeholder="e.g. BATCH-2026-001" className={hasErr('batchNumber') ? inputErrCls : inputCls} />
+              {errors.batchNumber && <p className="text-[11px] text-red-500 mt-0.5">{errors.batchNumber}</p>}
+            </div>
+          </div>
         </div>
-        <Field label="Mfg Date" name="mfgDate" type="date" />
-        <Field label="Expiry Date" name="expiryDate" type="date" />
-        <Field label="Vehicle / LR No." name="vehicleLR" placeholder="MH-XX-AB-1234" required={false} />
+
+        {/* Section 3: Quantity */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Storage Location <span className="text-red-500">*</span></label>
-          <select {...register('storageLocation')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
-            {['Main Store', 'Cold Room A', 'Cold Room B', 'Raw Material Store', 'Quarantine Zone'].map(o => <option key={o}>{o}</option>)}
-          </select>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Quantity Received</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Quantity <span className="text-red-500">*</span></label>
+              <input type="number" min="1" value={form.qtyReceived} onChange={(e) => set('qtyReceived', e.target.value)} placeholder="e.g. 5000" className={hasErr('qtyReceived') ? inputErrCls : inputCls} />
+              {errors.qtyReceived && <p className="text-[11px] text-red-500 mt-0.5">{errors.qtyReceived}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Unit <span className="text-red-500">*</span></label>
+              <select value={form.unit} onChange={(e) => set('unit', e.target.value)} className={inputCls}>
+                {['KG', 'L', 'Units', 'Boxes', 'Packs', 'Bottles', 'Drums', 'Bags'].map((u) => (
+                  <option key={u} value={u}>{u}</option>
+                ))}
+              </select>
+            </div>
+          </div>
         </div>
-        <div className="col-span-2">
-          <label className="block text-xs text-gray-500 mb-1">Remarks</label>
-          <textarea {...register('remarks')} rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none" placeholder="Optional remarks..." />
+
+        {/* Section 4: Dates */}
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Manufacturing & Expiry Dates</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Manufacturing Date <span className="text-red-500">*</span></label>
+              <input type="date" value={form.mfgDate} onChange={(e) => set('mfgDate', e.target.value)} className={hasErr('mfgDate') ? inputErrCls : inputCls} />
+              {errors.mfgDate && <p className="text-[11px] text-red-500 mt-0.5">{errors.mfgDate}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Expiry Date <span className="text-red-500">*</span></label>
+              <input type="date" value={form.expiryDate} onChange={(e) => set('expiryDate', e.target.value)} className={hasErr('expiryDate') ? inputErrCls : inputCls} />
+              {errors.expiryDate && <p className="text-[11px] text-red-500 mt-0.5">{errors.expiryDate}</p>}
+            </div>
+          </div>
         </div>
-        <div className="col-span-2 border-2 border-dashed border-gray-200 rounded-lg p-4 text-center text-xs text-gray-400 cursor-pointer hover:border-[#D4A847] hover:text-[#D4A847] transition-colors">
-          Click to upload CoA (PDF/DOCX, max 25MB)
+
+        {/* Section 5: Storage & Logistics */}
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Storage & Logistics</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Storage Location <span className="text-red-500">*</span></label>
+              <select value={form.storageLocation} onChange={(e) => set('storageLocation', e.target.value)} className={hasErr('storageLocation') ? inputErrCls : inputCls}>
+                <option value="">Select Location</option>
+                {STORAGE_LOCATIONS.map((loc) => <option key={loc} value={loc}>{loc}</option>)}
+              </select>
+              {errors.storageLocation && <p className="text-[11px] text-red-500 mt-0.5">{errors.storageLocation}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Site Code <span className="text-red-500">*</span></label>
+              <select value={form.siteCode} onChange={(e) => set('siteCode', e.target.value)} className={hasErr('siteCode') ? inputErrCls : inputCls}>
+                <option value="">Select Site</option>
+                {SITE_CODES.map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+              {errors.siteCode && <p className="text-[11px] text-red-500 mt-0.5">{errors.siteCode}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Vehicle / LR No.</label>
+              <input type="text" value={form.vehicleLR} onChange={(e) => set('vehicleLR', e.target.value)} placeholder="e.g. MH-12-AB-1234" className={inputCls} />
+            </div>
+            <div>
+              <label className={labelCls}>Received By <span className="text-red-500">*</span></label>
+              <input type="text" value={form.receivedBy} onChange={(e) => set('receivedBy', e.target.value)} placeholder="Name of receiving person" className={hasErr('receivedBy') ? inputErrCls : inputCls} />
+              {errors.receivedBy && <p className="text-[11px] text-red-500 mt-0.5">{errors.receivedBy}</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* Section 6: Remarks & CoA */}
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Additional Information</h4>
+          <div className="space-y-4">
+            <div>
+              <label className={labelCls}>Remarks</label>
+              <textarea value={form.remarks} onChange={(e) => set('remarks', e.target.value)} rows={3} placeholder="Any additional notes about this goods receipt..." className={`${inputCls} resize-none`} />
+            </div>
+            <div>
+              <label className={labelCls}>Certificate of Analysis (CoA)</label>
+              <div className="border-2 border-dashed border-gray-200 rounded-lg p-5 text-center cursor-pointer hover:border-[#D4A847] hover:bg-[#D4A847]/5 transition-colors group">
+                <Upload size={20} className="mx-auto mb-2 text-gray-300 group-hover:text-[#D4A847] transition-colors" />
+                <p className="text-xs text-gray-400 group-hover:text-[#D4A847] transition-colors">Click to upload CoA document</p>
+                <p className="text-[10px] text-gray-300 mt-1">PDF, DOCX, JPG — Max 25MB</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </Modal>
@@ -212,7 +341,7 @@ export default function GRNPage() {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {GRN_KPIS.map(k => <KpiCard key={k.label} {...k} />)}
       </div>
 

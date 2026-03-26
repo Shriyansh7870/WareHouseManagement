@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Eye } from 'lucide-react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import { Plus, Eye, CheckCircle, Clock, AlertTriangle, ArrowRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 import KpiCard from '../../components/ui/KpiCard';
 import TabBar from '../../components/ui/TabBar';
@@ -17,18 +14,9 @@ import { useDataStore } from '../../store/dataStore';
 import { formatDate } from '../../utils/formatters';
 import type { CAPAPriority, CAPAStatus, CAPA, QAInspection } from '../../types/qa.types';
 
-const capaSchema = z.object({
-  source: z.string().min(1, 'Source is required'),
-  priority: z.enum(['CRITICAL', 'MAJOR', 'MINOR']),
-  category: z.string().min(1, 'Category is required'),
-  dueDate: z.string().min(1, 'Due date is required'),
-  assignedTo: z.string().min(1, 'Assignee is required'),
-  grnRef: z.string().optional(),
-  description: z.string().min(5, 'Description is required'),
-  correctiveAction: z.string().optional(),
-});
-
-type CAPAForm = z.infer<typeof capaSchema>;
+const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 transition-colors';
+const inputErrCls = 'w-full px-3 py-2 border border-red-400 bg-red-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300/30 transition-colors';
+const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
 
 const QA_KPIS = [
   { label: 'Pending Inspections', value: '4', sub: 'Awaiting decision', trend: 'warn' as const, accentColor: 'orange' as const },
@@ -58,89 +46,333 @@ function capaStatusVariant(s: CAPAStatus) {
   }
 }
 
+/* ─── CAPA Sources & Categories ─── */
+const CAPA_SOURCES = ['QA Inspection', 'Customer Complaint', 'Deviation', 'Audit', 'Regulatory', 'Internal'];
+const CAPA_CATEGORIES = ['Product Quality', 'Cold Chain', 'Documentation', 'Packaging', 'Process', 'Equipment', 'Training', 'Contamination'];
+
+/* ─── New CAPA Modal ─── */
 function NewCAPAModal({ onClose }: { onClose: () => void }) {
-  const { addCAPA } = useDataStore();
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CAPAForm>({
-    resolver: zodResolver(capaSchema),
-    defaultValues: { priority: 'MAJOR' },
+  const { addCAPA, grns } = useDataStore();
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [form, setForm] = useState({
+    source: '',
+    priority: 'MAJOR' as CAPAPriority,
+    category: '',
+    dueDate: '',
+    assignedTo: '',
+    raisedBy: '',
+    grnRef: '',
+    batchRef: '',
+    description: '',
+    rootCause: '',
+    correctiveAction: '',
+    preventiveAction: '',
   });
 
-  const onSubmit = async (data: CAPAForm) => {
-    await new Promise(r => setTimeout(r, 300));
+  const set = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => { const copy = { ...prev }; delete copy[field]; return copy; });
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.source) errs.source = 'Source is required';
+    if (!form.category) errs.category = 'Category is required';
+    if (!form.dueDate) errs.dueDate = 'Due date is required';
+    if (!form.assignedTo.trim()) errs.assignedTo = 'Assigned To is required';
+    if (!form.raisedBy.trim()) errs.raisedBy = 'Raised By is required';
+    if (!form.description.trim() || form.description.trim().length < 5) errs.description = 'Description is required (min 5 chars)';
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) toast.error('Please fill all required fields');
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    await new Promise((r) => setTimeout(r, 300));
     const capaNumber = `CAP-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
     addCAPA({
       id: `capa-${Date.now()}`,
       capaNumber,
-      source: data.source.toUpperCase().replace(/\s/g, '_'),
-      description: data.description,
-      category: data.category,
-      priority: data.priority,
-      raisedBy: 'Rahul Mehta',
-      assignedTo: data.assignedTo,
-      dueDate: data.dueDate,
+      source: form.source.toUpperCase().replace(/\s/g, '_'),
+      description: form.description.trim(),
+      category: form.category,
+      priority: form.priority,
+      raisedBy: form.raisedBy.trim(),
+      assignedTo: form.assignedTo.trim(),
+      dueDate: form.dueDate,
       status: 'OPEN',
+      grnRef: form.grnRef || undefined,
+      batchRef: form.batchRef || undefined,
+      rootCause: form.rootCause.trim() || undefined,
+      correctiveAction: form.correctiveAction.trim() || undefined,
+      preventiveAction: form.preventiveAction.trim() || undefined,
+      createdAt: new Date().toISOString(),
     });
     toast.success(`CAPA ${capaNumber} created successfully`);
+    setSaving(false);
+    onClose();
+  };
+
+  const hasErr = (f: string) => !!errors[f];
+
+  return (
+    <Modal
+      title="Create New CAPA"
+      width="780px"
+      onClose={onClose}
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose}>Cancel</Button>
+          <Button variant="primary" loading={saving} onClick={handleSubmit}>Submit CAPA</Button>
+        </>
+      }
+    >
+      <div className="space-y-6">
+        {/* Section 1: Source & Classification */}
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Source & Classification</h4>
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <label className={labelCls}>Source <span className="text-red-500">*</span></label>
+              <select value={form.source} onChange={(e) => set('source', e.target.value)} className={hasErr('source') ? inputErrCls : inputCls}>
+                <option value="">Select source</option>
+                {CAPA_SOURCES.map((o) => <option key={o}>{o}</option>)}
+              </select>
+              {errors.source && <p className="text-[11px] text-red-500 mt-0.5">{errors.source}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Priority <span className="text-red-500">*</span></label>
+              <select value={form.priority} onChange={(e) => set('priority', e.target.value)} className={inputCls}>
+                <option value="CRITICAL">Critical</option>
+                <option value="MAJOR">Major</option>
+                <option value="MINOR">Minor</option>
+              </select>
+            </div>
+            <div>
+              <label className={labelCls}>Category <span className="text-red-500">*</span></label>
+              <select value={form.category} onChange={(e) => set('category', e.target.value)} className={hasErr('category') ? inputErrCls : inputCls}>
+                <option value="">Select category</option>
+                {CAPA_CATEGORIES.map((o) => <option key={o}>{o}</option>)}
+              </select>
+              {errors.category && <p className="text-[11px] text-red-500 mt-0.5">{errors.category}</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* Section 2: References & Assignment */}
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">References & Assignment</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className={labelCls}>Raised By <span className="text-red-500">*</span></label>
+              <input type="text" value={form.raisedBy} onChange={(e) => set('raisedBy', e.target.value)} placeholder="Name of person raising CAPA" className={hasErr('raisedBy') ? inputErrCls : inputCls} />
+              {errors.raisedBy && <p className="text-[11px] text-red-500 mt-0.5">{errors.raisedBy}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Assigned To <span className="text-red-500">*</span></label>
+              <input type="text" value={form.assignedTo} onChange={(e) => set('assignedTo', e.target.value)} placeholder="Name of assignee" className={hasErr('assignedTo') ? inputErrCls : inputCls} />
+              {errors.assignedTo && <p className="text-[11px] text-red-500 mt-0.5">{errors.assignedTo}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>Due Date <span className="text-red-500">*</span></label>
+              <input type="date" value={form.dueDate} onChange={(e) => set('dueDate', e.target.value)} className={hasErr('dueDate') ? inputErrCls : inputCls} />
+              {errors.dueDate && <p className="text-[11px] text-red-500 mt-0.5">{errors.dueDate}</p>}
+            </div>
+            <div>
+              <label className={labelCls}>GRN Reference</label>
+              <select value={form.grnRef} onChange={(e) => set('grnRef', e.target.value)} className={inputCls}>
+                <option value="">None</option>
+                {grns.map((g) => <option key={g.id} value={g.grnNumber}>{g.grnNumber} — {g.itemName}</option>)}
+              </select>
+            </div>
+            <div className="col-span-2">
+              <label className={labelCls}>Batch Reference</label>
+              <input type="text" value={form.batchRef} onChange={(e) => set('batchRef', e.target.value)} placeholder="e.g. B2847, D4521" className={inputCls} />
+            </div>
+          </div>
+        </div>
+
+        {/* Section 3: Description */}
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Problem Description</h4>
+          <div>
+            <label className={labelCls}>Description <span className="text-red-500">*</span></label>
+            <textarea value={form.description} onChange={(e) => set('description', e.target.value)} rows={3} placeholder="Describe the issue in detail — what happened, when, where, impact..." className={`${hasErr('description') ? inputErrCls : inputCls} resize-none`} />
+            {errors.description && <p className="text-[11px] text-red-500 mt-0.5">{errors.description}</p>}
+          </div>
+        </div>
+
+        {/* Section 4: Root Cause & Actions */}
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Root Cause & Actions <span className="text-[10px] text-gray-300 font-normal normal-case tracking-normal">(can be filled later)</span></h4>
+          <div className="space-y-4">
+            <div>
+              <label className={labelCls}>Root Cause Analysis</label>
+              <textarea value={form.rootCause} onChange={(e) => set('rootCause', e.target.value)} rows={2} placeholder="Identify the root cause — why did this happen?" className={`${inputCls} resize-none`} />
+            </div>
+            <div>
+              <label className={labelCls}>Corrective Action</label>
+              <textarea value={form.correctiveAction} onChange={(e) => set('correctiveAction', e.target.value)} rows={2} placeholder="Immediate steps to correct the issue..." className={`${inputCls} resize-none`} />
+            </div>
+            <div>
+              <label className={labelCls}>Preventive Action</label>
+              <textarea value={form.preventiveAction} onChange={(e) => set('preventiveAction', e.target.value)} rows={2} placeholder="Long-term steps to prevent recurrence..." className={`${inputCls} resize-none`} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
+/* ─── CAPA Detail Modal with Workflow ─── */
+function CAPADetailModal({ capa, onClose }: { capa: CAPA; onClose: () => void }) {
+  const { updateCAPA } = useDataStore();
+
+  const WORKFLOW_STEPS = [
+    { key: 'OPEN', label: 'Opened', icon: AlertTriangle },
+    { key: 'IN_PROGRESS', label: 'Investigation', icon: Clock },
+    { key: 'PENDING_VERIFICATION', label: 'Verification', icon: Eye },
+    { key: 'CLOSED', label: 'Closed', icon: CheckCircle },
+  ];
+
+  const statusOrder = ['OPEN', 'IN_PROGRESS', 'PENDING_VERIFICATION', 'CLOSED'];
+  const currentIdx = statusOrder.indexOf(capa.status === 'OVERDUE' ? 'OPEN' : capa.status);
+
+  const canAdvance = capa.status !== 'CLOSED';
+  const nextStatus = canAdvance ? statusOrder[Math.min(currentIdx + 1, statusOrder.length - 1)] as CAPAStatus : null;
+
+  const handleAdvance = () => {
+    if (!nextStatus) return;
+    const updates: Partial<CAPA> = { status: nextStatus, updatedAt: new Date().toISOString() };
+    if (nextStatus === 'CLOSED') updates.closureDate = new Date().toISOString().split('T')[0];
+    updateCAPA(capa.id, updates);
+    toast.success(`CAPA ${capa.capaNumber} moved to ${nextStatus.replace('_', ' ')}`);
     onClose();
   };
 
   return (
     <Modal
-      title="New CAPA"
-      width="640px"
+      title={`CAPA Details — ${capa.capaNumber}`}
       onClose={onClose}
+      width="780px"
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>Cancel</Button>
-          <Button variant="primary" loading={isSubmitting} onClick={handleSubmit(onSubmit)}>Submit CAPA</Button>
+          <Button variant="ghost" onClick={onClose}>Close</Button>
+          {canAdvance && nextStatus && (
+            <Button variant="primary" onClick={handleAdvance}>
+              Advance to {nextStatus.replace('_', ' ')} <ArrowRight size={13} />
+            </Button>
+          )}
         </>
       }
     >
-      <div className="grid grid-cols-2 gap-4 text-sm">
+      <div className="space-y-6">
+        {/* Workflow Progress */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Source <span className="text-red-500">*</span></label>
-          <select {...register('source')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.source ? 'border-red-400' : 'border-gray-200'}`}>
-            <option value="">Select source</option>
-            {['QA Inspection', 'Customer Complaint', 'Deviation', 'Audit', 'Regulatory', 'Internal'].map(o => <option key={o}>{o}</option>)}
-          </select>
-          {errors.source && <p className="text-[11px] text-red-500 mt-0.5">{errors.source.message}</p>}
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-4">Workflow Status</h4>
+          <div className="flex items-center justify-between">
+            {WORKFLOW_STEPS.map((step, i) => {
+              const StepIcon = step.icon;
+              const isCompleted = i < currentIdx;
+              const isCurrent = i === currentIdx;
+              const isOverdue = capa.status === 'OVERDUE' && i === 0;
+              return (
+                <React.Fragment key={step.key}>
+                  <div className="flex flex-col items-center gap-1.5 flex-1">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                      isOverdue ? 'border-red-400 bg-red-50 text-red-600' :
+                      isCompleted ? 'border-green-400 bg-green-50 text-green-600' :
+                      isCurrent ? 'border-[#D4A847] bg-[#D4A847]/10 text-[#D4A847]' :
+                      'border-gray-200 bg-gray-50 text-gray-300'
+                    }`}>
+                      <StepIcon size={16} />
+                    </div>
+                    <span className={`text-[10px] font-medium text-center ${
+                      isOverdue ? 'text-red-600' :
+                      isCompleted ? 'text-green-600' :
+                      isCurrent ? 'text-[#D4A847]' :
+                      'text-gray-300'
+                    }`}>{isOverdue ? 'OVERDUE' : step.label}</span>
+                  </div>
+                  {i < WORKFLOW_STEPS.length - 1 && (
+                    <div className={`flex-1 h-0.5 mx-1 mb-5 ${i < currentIdx ? 'bg-green-300' : 'bg-gray-200'}`} />
+                  )}
+                </React.Fragment>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Info Grid */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Priority <span className="text-red-500">*</span></label>
-          <select {...register('priority')} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30">
-            <option value="CRITICAL">Critical</option>
-            <option value="MAJOR">Major</option>
-            <option value="MINOR">Minor</option>
-          </select>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">CAPA Information</h4>
+          <div className="grid grid-cols-3 gap-x-6 gap-y-3 text-sm">
+            {([
+              ['CAPA Number', capa.capaNumber],
+              ['Source', capa.source.replace(/_/g, ' ')],
+              ['Category', capa.category],
+              ['Priority', capa.priority],
+              ['Status', capa.status.replace(/_/g, ' ')],
+              ['Raised By', capa.raisedBy],
+              ['Assigned To', capa.assignedTo],
+              ['Due Date', formatDate(capa.dueDate)],
+              ['Created', capa.createdAt ? formatDate(capa.createdAt) : '—'],
+              ['GRN Ref', capa.grnRef ?? '—'],
+              ['Batch Ref', capa.batchRef ?? '—'],
+              ['Closure Date', capa.closureDate ? formatDate(capa.closureDate) : '—'],
+            ] as [string, string][]).map(([l, v]) => (
+              <div key={l}>
+                <div className="text-xs text-gray-400 mb-0.5">{l}</div>
+                <div className="font-medium text-gray-800">{v}</div>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Description */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Category <span className="text-red-500">*</span></label>
-          <input {...register('category')} placeholder="e.g. Product Quality" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.category ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
-          {errors.category && <p className="text-[11px] text-red-500 mt-0.5">{errors.category.message}</p>}
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Problem Description</h4>
+          <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{capa.description}</p>
         </div>
+
+        {/* Root Cause */}
         <div>
-          <label className="block text-xs text-gray-500 mb-1">Due Date <span className="text-red-500">*</span></label>
-          <input type="date" {...register('dueDate')} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.dueDate ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
-          {errors.dueDate && <p className="text-[11px] text-red-500 mt-0.5">{errors.dueDate.message}</p>}
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Root Cause Analysis</h4>
+          <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{capa.rootCause || <span className="text-gray-400 italic">Not yet documented</span>}</p>
         </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Assigned To <span className="text-red-500">*</span></label>
-          <input {...register('assignedTo')} placeholder="Assignee name" className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 ${errors.assignedTo ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} />
-          {errors.assignedTo && <p className="text-[11px] text-red-500 mt-0.5">{errors.assignedTo.message}</p>}
+
+        {/* Actions */}
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Corrective Action</h4>
+            <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 min-h-[60px]">{capa.correctiveAction || <span className="text-gray-400 italic">Not yet documented</span>}</p>
+          </div>
+          <div>
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Preventive Action</h4>
+            <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3 min-h-[60px]">{capa.preventiveAction || <span className="text-gray-400 italic">Not yet documented</span>}</p>
+          </div>
         </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">GRN Reference</label>
-          <input {...register('grnRef')} placeholder="GRN-2024-XXXX" className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30" />
-        </div>
-        <div className="col-span-2">
-          <label className="block text-xs text-gray-500 mb-1">Description <span className="text-red-500">*</span></label>
-          <textarea {...register('description')} rows={3} className={`w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none ${errors.description ? 'border-red-400 bg-red-50' : 'border-gray-200'}`} placeholder="Describe the CAPA..." />
-          {errors.description && <p className="text-[11px] text-red-500 mt-0.5">{errors.description.message}</p>}
-        </div>
-        <div className="col-span-2">
-          <label className="block text-xs text-gray-500 mb-1">Corrective Action</label>
-          <textarea {...register('correctiveAction')} rows={2} className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 resize-none" placeholder="Steps to correct..." />
-        </div>
+
+        {/* Verification (if applicable) */}
+        {(capa.status === 'PENDING_VERIFICATION' || capa.status === 'CLOSED') && (
+          <div>
+            <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Verification</h4>
+            <div className="bg-green-50 border border-green-100 rounded-lg p-3 text-sm">
+              {capa.verificationNotes ? (
+                <div className="space-y-1">
+                  <p className="text-gray-700">{capa.verificationNotes}</p>
+                  <p className="text-xs text-green-600 font-medium">Verified by {capa.verifiedBy} on {capa.verifiedDate ? formatDate(capa.verifiedDate) : '—'}</p>
+                </div>
+              ) : (
+                <p className="text-gray-400 italic">Awaiting verification</p>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </Modal>
   );
@@ -150,6 +382,7 @@ const TABS = [
   { id: 'inspections', label: 'QA Inspections' },
   { id: 'quarantine', label: 'Quarantine Hold' },
   { id: 'capa', label: 'CAPA Tracker' },
+  { id: 'workflow', label: 'CAPA Workflow' },
   { id: 'deviations', label: 'Deviation Log' },
 ];
 
@@ -188,14 +421,14 @@ export default function QAPage() {
   return (
     <div className="space-y-4">
       {/* KPIs */}
-      <div className="grid grid-cols-5 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {QA_KPIS.map((k) => <KpiCard key={k.label} {...k} />)}
       </div>
 
       {/* Tabs + Actions */}
       <div className="flex items-center justify-between">
         <TabBar tabs={TABS} active={tab} onChange={setTab} />
-        {tab === 'capa' && canManageCAPAs && (
+        {(tab === 'capa' || tab === 'workflow') && canManageCAPAs && (
           <Button variant="primary" size="sm" onClick={() => setShowNewCAPA(true)}>
             <Plus size={13} /> New CAPA
           </Button>
@@ -352,6 +585,72 @@ export default function QAPage() {
         </div>
       )}
 
+      {/* CAPA Workflow */}
+      {tab === 'workflow' && (
+        <div className="space-y-4">
+          {/* Workflow Summary Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {([
+              { label: 'Open', statuses: ['OPEN'], color: '#f97316', bg: 'bg-orange-50 border-orange-200' },
+              { label: 'In Progress', statuses: ['IN_PROGRESS'], color: '#3b82f6', bg: 'bg-blue-50 border-blue-200' },
+              { label: 'Pending Verification', statuses: ['PENDING_VERIFICATION'], color: '#8b5cf6', bg: 'bg-purple-50 border-purple-200' },
+              { label: 'Closed', statuses: ['CLOSED'], color: '#22c55e', bg: 'bg-green-50 border-green-200' },
+            ] as const).map((stage) => {
+              const count = capas.filter((c) => stage.statuses.includes(c.status)).length;
+              const overdue = stage.label === 'Open' ? capas.filter((c) => c.status === 'OVERDUE').length : 0;
+              return (
+                <div key={stage.label} className={`rounded-xl border p-4 ${stage.bg}`}>
+                  <div className="text-xs font-medium text-gray-500 mb-1">{stage.label}</div>
+                  <div className="text-2xl font-bold" style={{ color: stage.color }}>{count + overdue}</div>
+                  {overdue > 0 && <div className="text-[10px] text-red-500 font-medium mt-0.5">{overdue} overdue</div>}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Workflow Kanban-style list */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+            {([
+              { label: 'Open', statuses: ['OPEN', 'OVERDUE'], headerColor: 'text-orange-600', borderColor: 'border-orange-300' },
+              { label: 'In Progress', statuses: ['IN_PROGRESS'], headerColor: 'text-blue-600', borderColor: 'border-blue-300' },
+              { label: 'Pending Verification', statuses: ['PENDING_VERIFICATION'], headerColor: 'text-purple-600', borderColor: 'border-purple-300' },
+              { label: 'Closed', statuses: ['CLOSED'], headerColor: 'text-green-600', borderColor: 'border-green-300' },
+            ] as const).map((col) => {
+              const items = capas.filter((c) => (col.statuses as readonly string[]).includes(c.status));
+              return (
+                <div key={col.label} className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+                  <div className={`px-4 py-3 border-b-2 ${col.borderColor}`}>
+                    <h4 className={`text-xs font-bold uppercase tracking-wide ${col.headerColor}`}>{col.label} ({items.length})</h4>
+                  </div>
+                  <div className="p-3 space-y-2 min-h-[120px]">
+                    {items.length === 0 && <p className="text-xs text-gray-300 text-center py-6">No CAPAs</p>}
+                    {items.map((capa) => (
+                      <div
+                        key={capa.id}
+                        onClick={() => setViewCAPA(capa)}
+                        className="p-3 rounded-lg border border-gray-100 hover:border-[#D4A847]/40 hover:shadow-sm cursor-pointer transition-all group"
+                      >
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="font-mono text-[11px] text-[#D4A847] font-semibold">{capa.capaNumber}</span>
+                          <Badge variant={capaPriorityVariant(capa.priority)}>{capa.priority}</Badge>
+                        </div>
+                        <p className="text-xs text-gray-700 line-clamp-2 mb-2">{capa.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] text-gray-400">{capa.assignedTo}</span>
+                          <span className={`text-[10px] font-medium ${capa.status === 'OVERDUE' ? 'text-red-500' : 'text-gray-400'}`}>
+                            Due {formatDate(capa.dueDate)}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Deviation Log */}
       {tab === 'deviations' && (
         <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
@@ -416,29 +715,7 @@ export default function QAPage() {
         </Modal>
       )}
 
-      {viewCAPA && (
-        <Modal title={`CAPA — ${viewCAPA.capaNumber}`} onClose={() => setViewCAPA(null)} width="600px">
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-            {[
-              ['CAPA Number', viewCAPA.capaNumber],
-              ['Source', viewCAPA.source.replace('_', ' ')],
-              ['Category', viewCAPA.category],
-              ['Priority', viewCAPA.priority],
-              ['Raised By', viewCAPA.raisedBy],
-              ['Assigned To', viewCAPA.assignedTo],
-              ['Due Date', formatDate(viewCAPA.dueDate)],
-              ['Status', viewCAPA.status.replace('_', ' ')],
-              ['Closure Date', viewCAPA.closureDate ? formatDate(viewCAPA.closureDate) : '—'],
-              ['Description', viewCAPA.description],
-            ].map(([l, v]) => (
-              <div key={String(l)} className={l === 'Description' ? 'col-span-2' : ''}>
-                <div className="text-xs text-gray-500 mb-0.5">{l}</div>
-                <div className="font-medium text-gray-800">{String(v ?? '—')}</div>
-              </div>
-            ))}
-          </div>
-        </Modal>
-      )}
+      {viewCAPA && <CAPADetailModal capa={viewCAPA} onClose={() => setViewCAPA(null)} />}
     </div>
   );
 }

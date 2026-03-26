@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { MOCK_INVENTORY, MOCK_GRNS, MOCK_ASNS, MOCK_CAPAS, MOCK_DEVIATIONS, MOCK_QA_INSPECTIONS, MOCK_DELIVERY_ORDERS, MOCK_PICK_ITEMS } from '../utils/mockData';
+import { MOCK_INVENTORY, MOCK_GRNS, MOCK_ASNS, MOCK_CAPAS, MOCK_DEVIATIONS, MOCK_QA_INSPECTIONS, MOCK_DELIVERY_ORDERS, MOCK_PICK_ITEMS, MOCK_RETURNS } from '../utils/mockData';
 import type { InventoryItem } from '../types/inventory.types';
 import type { GRN, ASN } from '../types/grn.types';
 import type { CAPA, Deviation, QAInspection } from '../types/qa.types';
 import type { DeliveryOrder, PickItem } from '../types/dispatch.types';
+import type { ReturnRMA } from '../types/returns.types';
 
 interface DataStore {
   // Inventory
@@ -34,6 +35,11 @@ interface DataStore {
   pickItems: PickItem[];
   addDeliveryOrder: (order: DeliveryOrder) => void;
   updateDeliveryOrder: (id: string, updates: Partial<DeliveryOrder>) => void;
+
+  // Returns
+  returns: ReturnRMA[];
+  addReturn: (rma: ReturnRMA) => void;
+  updateReturn: (id: string, updates: Partial<ReturnRMA>) => void;
 }
 
 export const useDataStore = create<DataStore>()(
@@ -99,7 +105,31 @@ export const useDataStore = create<DataStore>()(
         set((s) => ({
           deliveryOrders: s.deliveryOrders.map((d) => (d.id === id ? { ...d, ...updates } : d)),
         })),
+
+      returns: MOCK_RETURNS,
+
+      addReturn: (rma) =>
+        set((s) => ({ returns: [rma, ...s.returns] })),
+
+      updateReturn: (id, updates) =>
+        set((s) => ({
+          returns: s.returns.map((r) => (r.id === id ? { ...r, ...updates } : r)),
+        })),
     }),
-    { name: 'qi-data' }
+    {
+      name: 'qi-data',
+      version: 3,
+      migrate: () => ({
+        inventory: MOCK_INVENTORY,
+        grns: MOCK_GRNS,
+        asns: MOCK_ASNS,
+        qaInspections: MOCK_QA_INSPECTIONS,
+        capas: MOCK_CAPAS,
+        deviations: MOCK_DEVIATIONS,
+        deliveryOrders: MOCK_DELIVERY_ORDERS,
+        pickItems: MOCK_PICK_ITEMS,
+        returns: MOCK_RETURNS,
+      }),
+    }
   )
 );

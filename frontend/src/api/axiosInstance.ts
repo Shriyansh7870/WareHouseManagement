@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:5000/api',
@@ -21,8 +22,7 @@ axiosInstance.interceptors.response.use(
   (res) => res,
   (err) => {
     if (err.response?.status === 401) {
-      localStorage.removeItem('qi-auth');
-      window.location.href = '/login';
+      useAuthStore.getState().logout();
     }
     return Promise.reject(err);
   }

@@ -1,10 +1,23 @@
 import React, { useState } from 'react';
-import { Plus, ChevronDown, ChevronRight, Eye } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Eye, Download, Printer } from 'lucide-react';
+import toast from 'react-hot-toast';
 import KpiCard from '../../components/ui/KpiCard';
 import Badge from '../../components/ui/Badge';
 import Button from '../../components/ui/Button';
 import Modal from '../../components/ui/Modal';
+import SearchBox from '../../components/ui/SearchBox';
+import { printTable } from '../../utils/printUtils';
+import { exportToCSV } from '../../utils/csvExport';
 import { formatDate } from '../../utils/formatters';
+import { STORAGE_LOCATIONS } from '../../utils/constants';
+
+const inputCls = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#D4A847]/30 transition-colors';
+const inputErrCls = 'w-full px-3 py-2 border border-red-400 bg-red-50 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-300/30 transition-colors';
+const labelCls = 'block text-xs font-medium text-gray-500 mb-1';
+
+const COUNT_TYPES = ['Full', 'Partial', 'Random', 'ABC Classification', 'Blind Count'];
+const ZONES = ['Main Store — Zone A', 'Main Store — Zone B', 'Cold Room A', 'Cold Room B', 'Raw Material Store', 'Quarantine Zone', 'Dispatch Area'];
+const ASSIGNEES = ['Kiran Patil', 'Priya Sharma', 'Amit Kumar', 'Rahul Mehta'];
 
 const CC_KPIS = [
   { label: 'Counts This Month', value: '3', sub: '1 full, 2 partial', trend: 'up' as const, accentColor: 'purple' as const },
@@ -50,21 +63,137 @@ function statusVariant(s: string): BadgeVariant {
   }
 }
 
+/* ─── New Cycle Count Modal ─── */
+function NewCycleCountModal({ onClose, onSave }: { onClose: () => void; onSave: (cc: typeof MOCK_COUNTS[0]) => void }) {
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [form, setForm] = useState({
+    type: '', zone: '', date: new Date().toISOString().split('T')[0],
+    conductedBy: '', totalSKUs: '', remarks: '',
+  });
+
+  const set = (f: string, v: string) => {
+    setForm((prev) => ({ ...prev, [f]: v }));
+    setErrors((prev) => { const c = { ...prev }; delete c[f]; return c; });
+  };
+
+  const validate = () => {
+    const errs: Record<string, string> = {};
+    if (!form.type) errs.type = 'Type is required';
+    if (!form.zone) errs.zone = 'Zone is required';
+    if (!form.date) errs.date = 'Date is required';
+    if (!form.conductedBy) errs.conductedBy = 'Conducted by is required';
+    if (!form.totalSKUs || parseInt(form.totalSKUs) <= 0) errs.totalSKUs = 'Total SKUs must be positive';
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) toast.error('Please fill all required fields');
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setSaving(true);
+    await new Promise((r) => setTimeout(r, 300));
+    const countId = `CC-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
+    onSave({
+      id: `cc-${Date.now()}`, countId, type: form.type, date: form.date,
+      zone: form.zone, totalSKUs: parseInt(form.totalSKUs), variances: 0,
+      conductedBy: form.conductedBy, status: 'IN_PROGRESS', varList: [],
+    });
+    toast.success(`Cycle Count ${countId} created`);
+    setSaving(false);
+    onClose();
+  };
+
+  const hasErr = (f: string) => !!errors[f];
+
+  return (
+    <Modal title="New Cycle Count" width="680px" onClose={onClose} footer={
+      <><Button variant="ghost" onClick={onClose}>Cancel</Button>
+      <Button variant="primary" loading={saving} onClick={handleSubmit}>Start Count</Button></>
+    }>
+      <div className="space-y-5">
+        <div>
+          <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">Count Configuration</h4>
+          <div className="grid grid-cols-2 gap-4">
+            <div><label className={labelCls}>Count Type <span className="text-red-500">*</span></label>
+              <select value={form.type} onChange={(e) => set('type', e.target.value)} className={hasErr('type') ? inputErrCls : inputCls}>
+                <option value="">Select type</option>
+                {COUNT_TYPES.map((t) => <option key={t}>{t}</option>)}
+              </select>
+              {errors.type && <p className="text-[11px] text-red-500 mt-0.5">{errors.type}</p>}</div>
+            <div><label className={labelCls}>Zone / Location <span className="text-red-500">*</span></label>
+              <select value={form.zone} onChange={(e) => set('zone', e.target.value)} className={hasErr('zone') ? inputErrCls : inputCls}>
+                <option value="">Select zone</option>
+                {ZONES.map((z) => <option key={z}>{z}</option>)}
+              </select>
+              {errors.zone && <p className="text-[11px] text-red-500 mt-0.5">{errors.zone}</p>}</div>
+            <div><label className={labelCls}>Count Date <span className="text-red-500">*</span></label>
+              <input type="date" value={form.date} onChange={(e) => set('date', e.target.value)} className={hasErr('date') ? inputErrCls : inputCls} />
+              {errors.date && <p className="text-[11px] text-red-500 mt-0.5">{errors.date}</p>}</div>
+            <div><label className={labelCls}>Conducted By <span className="text-red-500">*</span></label>
+              <select value={form.conductedBy} onChange={(e) => set('conductedBy', e.target.value)} className={hasErr('conductedBy') ? inputErrCls : inputCls}>
+                <option value="">Select person</option>
+                {ASSIGNEES.map((a) => <option key={a}>{a}</option>)}
+              </select>
+              {errors.conductedBy && <p className="text-[11px] text-red-500 mt-0.5">{errors.conductedBy}</p>}</div>
+            <div><label className={labelCls}>Total SKUs to Count <span className="text-red-500">*</span></label>
+              <input type="number" min="1" value={form.totalSKUs} onChange={(e) => set('totalSKUs', e.target.value)} placeholder="e.g. 36" className={hasErr('totalSKUs') ? inputErrCls : inputCls} />
+              {errors.totalSKUs && <p className="text-[11px] text-red-500 mt-0.5">{errors.totalSKUs}</p>}</div>
+            <div><label className={labelCls}>Remarks</label>
+              <input type="text" value={form.remarks} onChange={(e) => set('remarks', e.target.value)} placeholder="Optional notes" className={inputCls} /></div>
+          </div>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 export default function CycleCountPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [viewCount, setViewCount] = useState<typeof MOCK_COUNTS[0] | null>(null);
+  const [showNewCount, setShowNewCount] = useState(false);
+  const [counts, setCounts] = useState(MOCK_COUNTS);
+  const [search, setSearch] = useState('');
+
+  const filteredCounts = counts.filter((cc) =>
+    !search ||
+    cc.countId.toLowerCase().includes(search.toLowerCase()) ||
+    cc.zone.toLowerCase().includes(search.toLowerCase()) ||
+    cc.conductedBy.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-4 gap-4 lg:grid-cols-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {CC_KPIS.map((k) => <KpiCard key={k.label} {...k} />)}
       </div>
 
-      <div className="flex justify-end">
-        <Button variant="primary" size="sm"><Plus size={13} /> New Cycle Count</Button>
+      <div className="flex items-center justify-between">
+        <div />
+        <Button variant="primary" size="sm" onClick={() => setShowNewCount(true)}><Plus size={13} /> New Cycle Count</Button>
       </div>
 
       <div className="bg-white rounded-xl overflow-hidden" style={{ border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+        <div className="p-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
+          <SearchBox value={search} onChange={setSearch} placeholder="Search count ID, zone, person..." className="w-72" />
+          <div className="ml-auto flex gap-2">
+            <Button variant="ghost" size="sm" onClick={() => exportToCSV(
+              filteredCounts.map((cc) => ({
+                'Count ID': cc.countId, 'Type': cc.type, 'Date': cc.date, 'Zone': cc.zone,
+                'Total SKUs': cc.totalSKUs, 'Variances': cc.variances,
+                'Conducted By': cc.conductedBy, 'Status': cc.status,
+              })),
+              'cycle-counts'
+            )}><Download size={13} /> Export</Button>
+            <Button variant="ghost" size="sm" onClick={() => printTable({
+              title: 'Cycle Count Register',
+              subtitle: `${filteredCounts.length} counts`,
+              headers: ['Count ID', 'Type', 'Date', 'Zone', 'SKUs', 'Variances', 'By', 'Status'],
+              rows: filteredCounts.map((cc) => [cc.countId, cc.type, cc.date, cc.zone, cc.totalSKUs, cc.variances, cc.conductedBy, cc.status]),
+              orientation: 'landscape',
+            })}><Printer size={13} /> Print</Button>
+          </div>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px]">
             <thead className="bg-gray-50 border-b border-gray-100">
@@ -75,7 +204,7 @@ export default function CycleCountPage() {
               </tr>
             </thead>
             <tbody>
-              {MOCK_COUNTS.map((cc) => (
+              {filteredCounts.map((cc) => (
                 <React.Fragment key={cc.id}>
                   <tr className="hover:bg-gray-50/50 transition-colors border-b border-gray-50">
                     <td className="px-3 py-2.5 w-8">
@@ -200,6 +329,12 @@ export default function CycleCountPage() {
             </div>
           )}
         </Modal>
+      )}
+      {showNewCount && (
+        <NewCycleCountModal
+          onClose={() => setShowNewCount(false)}
+          onSave={(cc) => setCounts((prev) => [cc, ...prev])}
+        />
       )}
     </div>
   );

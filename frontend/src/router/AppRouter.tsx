@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react';
+import React, { lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuthStore } from '../store/authStore';
@@ -24,44 +24,36 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
-const Loader = () => (
-  <div className="flex items-center justify-center h-64">
-    <div className="w-8 h-8 border-2 border-[#D4A847] border-t-transparent rounded-full animate-spin" />
-  </div>
-);
-
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Suspense fallback={<Loader />}>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <AppLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
-            <Route path="inventory" element={<InventoryPage />} />
-            <Route path="grn" element={<GRNPage />} />
-            <Route path="qa" element={<QAPage />} />
-            <Route path="cold-chain" element={<ColdChainPage />} />
-            <Route path="dispatch" element={<DispatchPage />} />
-            <Route path="returns" element={<ReturnsPage />} />
-            <Route path="vendors" element={<VendorsPage />} />
-            <Route path="documents" element={<DocumentsPage />} />
-            <Route path="cycle-count" element={<CycleCountPage />} />
-            <Route path="ai-analytics" element={<AIAnalyticsPage />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="audit" element={<AuditTrailPage />} />
-            <Route path="settings" element={<SettingsPage />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="inventory" element={<InventoryPage />} />
+          <Route path="grn" element={<GRNPage />} />
+          <Route path="qa" element={<QAPage />} />
+          <Route path="cold-chain" element={<ColdChainPage />} />
+          <Route path="dispatch" element={<DispatchPage />} />
+          <Route path="returns" element={<ReturnsPage />} />
+          <Route path="vendors" element={<VendorsPage />} />
+          <Route path="documents" element={<DocumentsPage />} />
+          <Route path="cycle-count" element={<CycleCountPage />} />
+          <Route path="ai-analytics" element={<AIAnalyticsPage />} />
+          <Route path="reports" element={<ReportsPage />} />
+          <Route path="audit" element={<AuditTrailPage />} />
+          <Route path="settings" element={<SettingsPage />} />
+        </Route>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </BrowserRouter>
   );
 }

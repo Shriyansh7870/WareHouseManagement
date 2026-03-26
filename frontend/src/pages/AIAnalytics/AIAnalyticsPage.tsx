@@ -158,7 +158,7 @@ export default function AIAnalyticsPage() {
       </Card>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-1">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card title="90-Day Stock Level Projection — Paracetamol 500mg">
           <ResponsiveContainer width="100%" height={240}>
             <LineChart data={PROJECTION_DATA}>

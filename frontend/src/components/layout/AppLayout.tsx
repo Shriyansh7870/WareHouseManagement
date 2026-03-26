@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
@@ -6,6 +6,7 @@ import { useUIStore } from '../../store/uiStore';
 import { useExpiryAlerts } from '../../hooks/useExpiryAlerts';
 import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 import OnboardingTour, { useOnboardingTour } from '../ui/OnboardingTour';
+import AIChatbot from '../ui/AIChatbot';
 
 const SHORTCUTS = [
   { key: 'D', label: 'Dashboard' },
@@ -78,11 +79,20 @@ export default function AppLayout() {
           className="flex-1 overflow-y-auto"
           style={{ marginTop: '60px', padding: '24px' }}
         >
-          <Outlet />
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-64">
+                <div className="w-8 h-8 border-2 border-[#D4A847] border-t-transparent rounded-full animate-spin" />
+              </div>
+            }
+          >
+            <Outlet />
+          </Suspense>
         </main>
       </div>
       {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
       {showTour && <OnboardingTour onDismiss={dismissTour} />}
+      <AIChatbot />
     </div>
   );
 }

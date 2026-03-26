@@ -29,6 +29,17 @@ export interface CAPA {
   dueDate: string;
   status: CAPAStatus;
   closureDate?: string;
+  // Extended fields
+  grnRef?: string;
+  batchRef?: string;
+  rootCause?: string;
+  correctiveAction?: string;
+  preventiveAction?: string;
+  verificationNotes?: string;
+  verifiedBy?: string;
+  verifiedDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Deviation {
