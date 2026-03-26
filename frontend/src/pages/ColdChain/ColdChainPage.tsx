@@ -196,7 +196,7 @@ function SensorDetailModal({ sensor, onClose }: { sensor: Sensor; onClose: () =>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis dataKey="hour" tick={{ fontSize: 10 }} interval={3} />
                 <YAxis domain={[sensor.minSpecC - 1, sensor.maxSpecC + 1]} tick={{ fontSize: 10 }} />
-                <Tooltip formatter={(v: number) => [`${v}°C`, 'Temperature']} />
+                <Tooltip formatter={(v) => [`${v}°C`, 'Temperature']} />
                 <ReferenceArea y1={sensor.minSpecC} y2={sensor.maxSpecC} fill="#22c55e" fillOpacity={0.08} label={{ value: 'Spec Range', fontSize: 9, fill: '#22c55e' }} />
                 <Area type="monotone" dataKey="temp" stroke={isDeviation ? '#f97316' : '#D4A847'} fill={isDeviation ? '#f97316' : '#D4A847'} fillOpacity={0.1} strokeWidth={2} />
               </AreaChart>
@@ -553,7 +553,7 @@ export default function ColdChainPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                   <XAxis dataKey="hour" tick={{ fontSize: 10 }} interval={3} />
                   <YAxis domain={[0, 12]} tick={{ fontSize: 10 }} unit="°C" />
-                  <Tooltip formatter={(v: number) => [`${v}°C`]} />
+                  <Tooltip formatter={(v) => [`${v}°C`]} />
                   <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                   <ReferenceArea y1={2} y2={8} fill="#22c55e" fillOpacity={0.06} label={{ value: 'Spec 2–8°C', fontSize: 9, fill: '#22c55e' }} />
                   <Line type="monotone" dataKey="Cold Room A" stroke="#D4A847" strokeWidth={2} dot={false} />
@@ -582,7 +582,7 @@ export default function ColdChainPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
                 <XAxis dataKey="day" tick={{ fontSize: 10 }} />
                 <YAxis domain={[0, 10]} tick={{ fontSize: 10 }} unit="°C" />
-                <Tooltip formatter={(v: number) => [`${v}°C`]} />
+                <Tooltip formatter={(v) => [`${v}°C`]} />
                 <Legend iconSize={8} wrapperStyle={{ fontSize: 11 }} />
                 <ReferenceArea y1={2} y2={8} fill="#22c55e" fillOpacity={0.06} />
                 <Line type="monotone" dataKey="CR-A Avg" stroke="#D4A847" strokeWidth={2} dot />

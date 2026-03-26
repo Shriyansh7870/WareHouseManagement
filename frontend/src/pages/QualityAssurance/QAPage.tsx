@@ -591,11 +591,11 @@ export default function QAPage() {
           {/* Workflow Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {([
-              { label: 'Open', statuses: ['OPEN'], color: '#f97316', bg: 'bg-orange-50 border-orange-200' },
-              { label: 'In Progress', statuses: ['IN_PROGRESS'], color: '#3b82f6', bg: 'bg-blue-50 border-blue-200' },
-              { label: 'Pending Verification', statuses: ['PENDING_VERIFICATION'], color: '#8b5cf6', bg: 'bg-purple-50 border-purple-200' },
-              { label: 'Closed', statuses: ['CLOSED'], color: '#22c55e', bg: 'bg-green-50 border-green-200' },
-            ] as const).map((stage) => {
+              { label: 'Open', statuses: ['OPEN'] as string[], color: '#f97316', bg: 'bg-orange-50 border-orange-200' },
+              { label: 'In Progress', statuses: ['IN_PROGRESS'] as string[], color: '#3b82f6', bg: 'bg-blue-50 border-blue-200' },
+              { label: 'Pending Verification', statuses: ['PENDING_VERIFICATION'] as string[], color: '#8b5cf6', bg: 'bg-purple-50 border-purple-200' },
+              { label: 'Closed', statuses: ['CLOSED'] as string[], color: '#22c55e', bg: 'bg-green-50 border-green-200' },
+            ]).map((stage) => {
               const count = capas.filter((c) => stage.statuses.includes(c.status)).length;
               const overdue = stage.label === 'Open' ? capas.filter((c) => c.status === 'OVERDUE').length : 0;
               return (

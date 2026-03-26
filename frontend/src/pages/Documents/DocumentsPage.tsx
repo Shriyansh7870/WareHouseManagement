@@ -47,7 +47,7 @@ function docStatusVariant(s: DocStatus) {
 }
 
 const DOC_TYPES: DocType[] = ['SOP', 'COA', 'VALIDATION', 'REGULATORY', 'CAPA', 'AUDIT_REPORT'];
-const DOC_TYPE_LABELS: Record<DocType, string> = { SOP: 'SOP', COA: 'Certificate of Analysis', VALIDATION: 'Validation', REGULATORY: 'Regulatory', CAPA: 'CAPA', AUDIT_REPORT: 'Audit Report' };
+const DOC_TYPE_LABELS: Record<DocType, string> = { SOP: 'SOP', COA: 'Certificate of Analysis', VALIDATION: 'Validation', REGULATORY: 'Regulatory', CAPA: 'CAPA', AUDIT_REPORT: 'Audit Report', POLICY: 'Policy' };
 const OWNERS = ['Rahul Mehta', 'Priya Sharma', 'Amit Kumar', 'Kiran Patil'];
 
 function UploadDocumentModal({ onClose }: { onClose: () => void }) {
