@@ -62,19 +62,16 @@ function NavContent({
     <>
       {/* Brand Header */}
       <div
-        className="flex flex-col items-center justify-center px-4 py-5 relative"
+        className="flex items-center justify-center px-4 py-4 relative"
         style={{ borderBottom: "1px solid rgba(212,168,71,0.1)" }}
       >
         {!collapsed ? (
-          <>
-            <img src="/logo3.png" alt="Logo" className="h-16 object-contain mb-2" />
-            <div className="font-display font-bold text-sm text-center leading-tight">
-              <span className="text-white">Forge Quantum</span>{" "}
-              <span style={{ color: "#D4A847" }}>Solution</span>
-            </div>
-          </>
+          <h1 className="font-bold text-xl tracking-tight">
+            <span className="text-white">Forge Quantum</span>{" "}
+            <span style={{ color: "#D4A847" }}>Solution</span>
+          </h1>
         ) : (
-          <img src="/logo3.png" alt="Logo" className="w-9 h-9 object-contain" />
+          <span className="text-white font-bold text-lg">FQ</span>
         )}
         <button
           onClick={onCloseMobile}
@@ -89,7 +86,7 @@ function NavContent({
         {NAV_ITEMS.map((section) => (
           <div key={section.section} className="mb-1">
             {!collapsed && (
-              <div className="px-4 py-2 text-[10px] font-semibold tracking-widest text-white/25 uppercase">
+              <div className="px-4 py-2 text-xs font-semibold tracking-widest text-white/25 uppercase">
                 {section.section}
               </div>
             )}
@@ -120,7 +117,7 @@ function NavContent({
                     <>
                       {Icon && (
                         <Icon
-                          size={16}
+                          size={20}
                           className={
                             isActive
                               ? "text-[#D4A847]"
@@ -129,7 +126,7 @@ function NavContent({
                         />
                       )}
                       {!collapsed && (
-                        <span className="flex-1 text-sm truncate">
+                        <span className="flex-1 text-base truncate">
                           {item.label}
                         </span>
                       )}
